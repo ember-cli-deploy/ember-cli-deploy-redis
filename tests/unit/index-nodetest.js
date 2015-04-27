@@ -24,30 +24,61 @@ describe('redis plugin', function() {
       name: 'test-plugin'
     });
 
+    assert.equal(typeof result.willDeploy, 'function');
     assert.equal(typeof result.upload, 'function');
   });
 
-  describe('upload hook', function() {
-    it('uploads the index to redis', function() {
+  describe('willDeploy hook', function() {
+    it('resolves if config is ok', function() {
       var plugin = subject.createDeployPlugin({
-        name: 'test-plugin'
+        name: 'redis'
       });
 
       var context = {
+        deployment: {
+          ui: { write: function() {}, writeLine: function() {} },
+          config: {
+            redis: {
+              host: 'somehost',
+              port: 1234
+            }
+          }
+        }
+      };
+
+      return assert.isFulfilled(plugin.willDeploy.call(plugin, context))
+    });
+  });
+
+  describe('upload hook', function() {
+    var plugin;
+    var context;
+
+    beforeEach(function() {
+      plugin = subject.createDeployPlugin({
+        name: 'redis'
+      });
+
+      context = {
         redisClient: {
           upload: function() {
             return Promise.resolve('redis-key');
           }
         },
         tag: 'some-tag',
-        indexPath: 'tests/index.html',
         deployment: {
           ui: { write: function() {} },
           project: { name: function() { return 'test-project'; } },
-          config: {}
+          config: {
+            redis: {
+              filePattern: 'tests/index.html',
+            }
+          }
         }
       };
+    });
 
+    it('uploads the index to redis', function() {
       return assert.isFulfilled(plugin.upload.call(plugin, context))
         .then(function(result) {
           assert.deepEqual(result, { redisKey: 'redis-key' });
@@ -55,6 +86,10 @@ describe('redis plugin', function() {
     });
 
     it('returns the uploaded key', function() {
+      return assert.isFulfilled(plugin.upload.call(plugin, context))
+        .then(function(result) {
+          assert.deepEqual(result.redisKey, 'redis-key');
+        });
     });
   });
 });
