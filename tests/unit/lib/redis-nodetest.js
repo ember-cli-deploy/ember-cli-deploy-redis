@@ -50,6 +50,30 @@ describe('redis', function() {
         });
     });
 
+    it('uploads the contents if the key already exists but allowOverwrite is true', function() {
+      var fileUploaded = false;
+
+      var redis = new Redis({
+        allowOverwrite: true,
+        redisClient: {
+          get: function(key) {
+            return Promise.resolve('some-other-value');
+          },
+          set: function(key, value) {
+            fileUploaded = true;
+          },
+          lpush: function() { },
+          ltrim: function() { }
+        }
+      });
+
+      var promise = redis.upload('key', 'value');
+      return assert.isFulfilled(promise)
+        .then(function() {
+          assert.ok(fileUploaded);
+        });
+    });
+
     it('updates the list of recent uploads once upload is successful', function() {
       var recentUploads = [];
 
