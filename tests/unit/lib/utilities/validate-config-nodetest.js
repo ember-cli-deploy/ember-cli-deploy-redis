@@ -10,8 +10,6 @@ describe('validate-config', function() {
   });
 
   beforeEach(function() {
-    config = { };
-
     mockUi = {
       messages: [],
       write: function() { },
@@ -21,30 +19,70 @@ describe('validate-config', function() {
     };
   });
 
-  it('warns about missing optional config', function() {
-    return assert.isFulfilled(subject(mockUi, config))
-      .then(function() {
-        var messages = mockUi.messages.reduce(function(previous, current) {
-          if (/- Missing config:\s.*, using default:\s/.test(current)) {
-            previous.push(current);
-          }
+  describe('without providing config', function () {
+    beforeEach(function() {
+      config = { };
+    });
+    it('warns about missing optional config', function() {
+      return assert.isFulfilled(subject(mockUi, config))
+        .then(function() {
+          var messages = mockUi.messages.reduce(function(previous, current) {
+            if (/- Missing config:\s.*, using default:\s/.test(current)) {
+              previous.push(current);
+            }
 
-          return previous;
-        }, []);
+            return previous;
+          }, []);
 
-        assert.equal(messages.length, 3);
-      });
+          assert.equal(messages.length, 3);
+        });
+    });
+
+    it('adds default config to the config object', function() {
+      return assert.isFulfilled(subject(mockUi, config))
+        .then(function() {
+          assert.isDefined(config.host);
+          assert.isDefined(config.port);
+        });
+    });
+
+    it('resolves', function() {
+      return assert.isFulfilled(subject(mockUi, config));
+    })
   });
 
-  it('adds default config to the config object', function() {
-    return assert.isFulfilled(subject(mockUi, config))
-      .then(function() {
-        assert.isDefined(config.host);
-        assert.isDefined(config.port);
-      });
-  });
+  describe('with a url provided', function () {
+    beforeEach(function() {
+      config = {
+        url: 'redis://localhost:6379'
+      };
+    });
+    it('only warns about missing optional filePattern', function() {
+      return assert.isFulfilled(subject(mockUi, config))
+        .then(function() {
+          var messages = mockUi.messages.reduce(function(previous, current) {
+            if (/- Missing config:\s.*, using default:\s/.test(current)) {
+              previous.push(current);
+            }
 
-  it('resolves if config is ok', function() {
-    return assert.isFulfilled(subject(mockUi, config));
-  })
+            return previous;
+          }, []);
+
+          assert.equal(messages.length, 1);
+        });
+    });
+
+    it('does not add default config to the config object', function() {
+      return assert.isFulfilled(subject(mockUi, config))
+        .then(function() {
+          assert.isUndefined(config.host);
+          assert.isUndefined(config.port);
+          assert.isDefined(config.filePattern);
+        });
+    });
+
+    it('resolves', function() {
+      return assert.isFulfilled(subject(mockUi, config));
+    })
+  });
 });
