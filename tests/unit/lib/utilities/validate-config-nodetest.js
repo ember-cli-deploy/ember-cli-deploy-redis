@@ -4,6 +4,7 @@ describe('validate-config', function() {
   var subject;
   var config;
   var mockUi;
+  var projectName = 'my-project';
 
   before(function() {
     subject = require('../../../../lib/utilities/validate-config');
@@ -24,7 +25,41 @@ describe('validate-config', function() {
       config = { };
     });
     it('warns about missing optional config', function() {
-      return assert.isFulfilled(subject(mockUi, config))
+      return assert.isFulfilled(subject(mockUi, config, projectName))
+        .then(function() {
+          var messages = mockUi.messages.reduce(function(previous, current) {
+            if (/- Missing config:\s.*, using default:\s/.test(current)) {
+              previous.push(current);
+            }
+
+            return previous;
+          }, []);
+          assert.equal(messages.length, 4);
+        });
+    });
+
+    it('adds default config to the config object', function() {
+      return assert.isFulfilled(subject(mockUi, config, projectName))
+        .then(function() {
+          assert.isDefined(config.host);
+          assert.isDefined(config.port);
+          assert.isDefined(config.keyPrefix);
+        });
+    });
+
+    it('resolves', function() {
+      return assert.isFulfilled(subject(mockUi, config, projectName));
+    })
+  });
+
+  describe('with a keyPrefix provided', function () {
+    beforeEach(function() {
+      config = {
+        keyPrefix: 'proj:home'
+      };
+    });
+    it('only warns about missing optional filePattern and connection info', function() {
+      return assert.isFulfilled(subject(mockUi, config, projectName))
         .then(function() {
           var messages = mockUi.messages.reduce(function(previous, current) {
             if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -37,18 +72,15 @@ describe('validate-config', function() {
           assert.equal(messages.length, 3);
         });
     });
-
-    it('adds default config to the config object', function() {
-      return assert.isFulfilled(subject(mockUi, config))
+    it('does not add default config to the config object', function() {
+      return assert.isFulfilled(subject(mockUi, config, projectName))
         .then(function() {
           assert.isDefined(config.host);
           assert.isDefined(config.port);
+          assert.isDefined(config.filePattern);
+          assert.equal(config.keyPrefix, 'proj:home');
         });
     });
-
-    it('resolves', function() {
-      return assert.isFulfilled(subject(mockUi, config));
-    })
   });
 
   describe('with a url provided', function () {
@@ -57,8 +89,8 @@ describe('validate-config', function() {
         url: 'redis://localhost:6379'
       };
     });
-    it('only warns about missing optional filePattern', function() {
-      return assert.isFulfilled(subject(mockUi, config))
+    it('warns about missing optional filePattern and keyPrefix only', function() {
+      return assert.isFulfilled(subject(mockUi, config, projectName))
         .then(function() {
           var messages = mockUi.messages.reduce(function(previous, current) {
             if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -68,12 +100,12 @@ describe('validate-config', function() {
             return previous;
           }, []);
 
-          assert.equal(messages.length, 1);
+          assert.equal(messages.length, 2);
         });
     });
 
     it('does not add default config to the config object', function() {
-      return assert.isFulfilled(subject(mockUi, config))
+      return assert.isFulfilled(subject(mockUi, config, projectName))
         .then(function() {
           assert.isUndefined(config.host);
           assert.isUndefined(config.port);
@@ -82,7 +114,7 @@ describe('validate-config', function() {
     });
 
     it('resolves', function() {
-      return assert.isFulfilled(subject(mockUi, config));
+      return assert.isFulfilled(subject(mockUi, config, projectName));
     })
   });
 });

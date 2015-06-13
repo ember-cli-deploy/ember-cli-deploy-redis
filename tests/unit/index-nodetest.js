@@ -37,6 +37,11 @@ describe('redis plugin', function() {
       var context = {
         deployment: {
           ui: { write: function() {}, writeLine: function() {} },
+          project: {
+            name: function(){
+              return 'my-project';
+            }
+          },
           config: {
             redis: {
               host: 'somehost',
