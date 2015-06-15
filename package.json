@@ -1,7 +1,7 @@
 {
   "name": "ember-cli-deploy-redis",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember CLI Deploy plugin to deploy file(s) into redis.",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,7 +11,7 @@
     "build": "ember build",
     "test": "node tests/runner.js"
   },
-  "repository": "",
+  "repository": "https://github.com/zapnito/ember-cli-deploy-redis",
   "engines": {
     "node": ">= 0.10.0"
   },
