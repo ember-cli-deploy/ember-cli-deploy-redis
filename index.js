@@ -51,11 +51,12 @@ module.exports = {
       name: options.name,
 
       willDeploy: function(context) {
-        var deployment = context.deployment;
-        var ui         = deployment.ui;
-        var config     = deployment.config[this.name] = deployment.config[this.name] || {};
+        var deployment  = context.deployment;
+        var ui          = deployment.ui;
+        var config      = deployment.config[this.name] = deployment.config[this.name] || {};
+        var projectName = deployment.project.name();
 
-        return validateConfig(ui, config)
+        return validateConfig(ui, config, projectName)
           .then(function() {
             ui.write(blue('|    '));
             ui.writeLine(blue('- config ok'));
@@ -67,16 +68,13 @@ module.exports = {
         var ui         = deployment.ui;
         var config     = deployment.config[this.name] || {};
         var redis      = context.redisClient || new Redis(config);
-
-        var projectName  = deployment.project.name();
         var tag          = context.tag;
-        var key          = projectName + ':index';
 
         var filePattern  = config.filePattern;
 
         return _beginMessage(ui, filePattern)
           .then(_readFileContents.bind(this, filePattern))
-          .then(redis.upload.bind(redis, key, tag))
+          .then(redis.upload.bind(redis, config.keyPrefix, tag))
           .then(_successMessage.bind(this, ui))
           .then(function(key) {
             return { redisKey: key }
