@@ -24,7 +24,7 @@ describe('redis plugin', function() {
       name: 'test-plugin'
     });
 
-    assert.equal(typeof result.willDeploy, 'function');
+    assert.equal(typeof result.configure, 'function');
     assert.equal(typeof result.upload, 'function');
   });
 
@@ -51,7 +51,7 @@ describe('redis plugin', function() {
         }
       };
 
-      return assert.isFulfilled(plugin.willDeploy.call(plugin, context))
+      return assert.isFulfilled(plugin.configure.call(plugin, context))
     });
   });
 
