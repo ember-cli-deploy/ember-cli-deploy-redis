@@ -50,11 +50,17 @@ module.exports = {
     return {
       name: options.name,
 
+      contextKeys: {
+        revision: 'tag'
+      },
+
       configure: function(context) {
         var deployment  = context.deployment;
         var ui          = deployment.ui;
         var config      = deployment.config[this.name] = deployment.config[this.name] || {};
         var projectName = deployment.project.name();
+
+        this._setUserDefinedContextKeys(config);
 
         return validateConfig(ui, config, projectName)
           .then(function() {
@@ -68,7 +74,8 @@ module.exports = {
         var ui         = deployment.ui;
         var config     = deployment.config[this.name] || {};
         var redis      = context.redisClient || new Redis(config);
-        var tag          = context.tag;
+
+        var tag        = this._context(context).revision;
 
         var filePattern  = config.filePattern;
 
@@ -80,6 +87,32 @@ module.exports = {
             return { redisKey: key }
           })
           .catch(_errorMessage.bind(this, ui));
+      },
+
+      _context: function(context) {
+        var result = {};
+
+        Object.keys(this.contextKeys).forEach(function(key) {
+          var value = this.contextKeys[key];
+          result[key] = context[value];
+        }.bind(this));
+
+        return result;
+      },
+
+      _setUserDefinedContextKeys: function(config) {
+        var regex = /(\$context:)(.*)/;
+        Object.keys(this.contextKeys).forEach(function(key) {
+          var value = config[key];
+
+          if (value) {
+            var newValue = value.match(regex)[2];
+
+            if (newValue) {
+              this.contextKeys[key] = newValue;
+            }
+          }
+        }.bind(this));
       }
     };
   }
