@@ -51,7 +51,7 @@ module.exports = {
       name: options.name,
 
       contextKeys: {
-        revision: 'revision'
+        revision: 'tag'
       },
 
       configure: function(context) {
@@ -60,17 +60,7 @@ module.exports = {
         var config      = deployment.config[this.name] = deployment.config[this.name] || {};
         var projectName = deployment.project.name();
 
-        Object.keys(this.contextKeys).forEach(function(key) {
-          var value = config[key];
-
-          if (value) {
-            var newValue = value.match(/(\$context:)(.*)/)[2];
-
-            if (newValue) {
-              this.contextKeys[key] = newValue;
-            }
-          }
-        }.bind(this));
+        this._setUserDefinedContextKeys(config);
 
         return validateConfig(ui, config, projectName)
           .then(function() {
@@ -108,6 +98,21 @@ module.exports = {
         }.bind(this));
 
         return result;
+      },
+
+      _setUserDefinedContextKeys: function(config) {
+        var regex = /(\$context:)(.*)/;
+        Object.keys(this.contextKeys).forEach(function(key) {
+          var value = config[key];
+
+          if (value) {
+            var newValue = value.match(regex)[2];
+
+            if (newValue) {
+              this.contextKeys[key] = newValue;
+            }
+          }
+        }.bind(this));
       }
     };
   }
