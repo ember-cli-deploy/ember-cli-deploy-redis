@@ -93,9 +93,22 @@ module.exports = {
           .catch(_errorMessage.bind(this, ui));
       },
 
+      activate: function(context) {
+        var deployment  = context.deployment;
+        var ui          = deployment.ui;
+        var config      = deployment.config[this.name] || {};
+        var redis       = context.redisClient || new Redis(config);
+        var revisionKey = this._resolveConfigValue('revisionKey', config, context);
+
+        return _beginActivateMessage(ui, revisionKey)
+          .then(redis.activate.bind(redis, config.keyPrefix, revisionKey))
+          .then(_activationSuccessMessage.bind(this, ui, revisionKey))
+          .catch(_errorMessage.bind(this, ui));
+      },
+
       _resolvePipelineData: function(config, context) {
         config.revisionKey = config.revisionKey || function(context) {
-          return context.deployment.commandLineArgs.revisionKey || context.deployment.revisionKey;
+          return context.deployment.commandLineArgs.revisionKey || context.revisionKey;
         };
 
         return Promise.resolve();
