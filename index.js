@@ -26,9 +26,16 @@ module.exports = {
         });
     }
 
-    function _beginMessage(ui, indexPath) {
+    function _beginUploadMessage(ui, indexPath) {
       ui.write(blue('|      '));
       ui.write(blue('- Uploading `' + indexPath + '`\n'));
+
+      return Promise.resolve();
+    }
+
+    function _beginActivateMessage(ui, revisionKey) {
+      ui.write(blue('|      '));
+      ui.write(blue('- Activating revision `' + revisionKey + '`\n'));
 
       return Promise.resolve();
     }
@@ -38,6 +45,13 @@ module.exports = {
       ui.write(blue('- Uploaded with key `' + key + '`\n'));
 
       return Promise.resolve(key);
+    }
+
+    function _activationSuccessMessage(ui, revisionKey) {
+      ui.write(blue('|      '));
+      ui.write(blue('- ✔ Activated revision `' + revisionKey + '`\n'));
+
+      return Promise.resolve();
     }
 
     function _errorMessage(ui, error) {
@@ -56,30 +70,43 @@ module.exports = {
         var config      = deployment.config[this.name] = deployment.config[this.name] || {};
         var projectName = deployment.project.name();
 
-        return validateConfig(ui, config, projectName)
-          .then(function() {
-            ui.write(blue('|    '));
-            ui.writeLine(blue('- config ok'));
-          });
+        return this._resolvePipelineData(config, context)
+          .then(validateConfig.bind(this, ui, config, projectName));
       },
 
       upload: function(context) {
-        var deployment = context.deployment;
-        var ui         = deployment.ui;
-        var config     = deployment.config[this.name] || {};
-        var redis      = context.redisClient || new Redis(config);
-        var tag          = context.tag;
+        var deployment  = context.deployment;
+        var ui          = deployment.ui;
+        var config      = deployment.config[this.name] || {};
+        var redis       = context.redisClient || new Redis(config);
+        var revisionKey = this._resolveConfigValue('revisionKey', config, context);
 
         var filePattern  = config.filePattern;
 
-        return _beginMessage(ui, filePattern)
+        return _beginUploadMessage(ui, filePattern)
           .then(_readFileContents.bind(this, filePattern))
-          .then(redis.upload.bind(redis, config.keyPrefix, tag))
+          .then(redis.upload.bind(redis, config.keyPrefix, revisionKey))
           .then(_successMessage.bind(this, ui))
           .then(function(key) {
             return { redisKey: key }
           })
           .catch(_errorMessage.bind(this, ui));
+      },
+
+      _resolvePipelineData: function(config, context) {
+        config.revisionKey = config.revisionKey || function(context) {
+          return context.deployment.commandLineArgs.revisionKey || context.deployment.revisionKey;
+        };
+
+        return Promise.resolve();
+      },
+
+      _resolveConfigValue: function(key, config, context) {
+        if(typeof config[key] === 'function') {
+          return config[key](context);
+        }
+
+        return config[key];
       }
     };
   }
