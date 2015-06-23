@@ -169,4 +169,48 @@ describe('redis', function() {
       });
     });
   });
+
+  describe('#activate', function() {
+    it('rejects if the revisionKey doesn\t exist in list of uploaded revisions', function() {
+      var recentRevisions = ['a', 'b', 'c'];
+
+      var redis = new Redis({
+        redisClient: {
+          lrange: function() {
+            return recentRevisions;
+          }
+        }
+      });
+
+      var promise = redis.activate('key-prefix', 'revision-key');
+      return assert.isRejected(promise)
+        .then(function(error) {
+          assert.equal(error, '`revision-key` is not a valid revision key');
+        });
+    });
+
+    it('resolves and sets the current revision to the revision key provided', function() {
+      var recentRevisions = ['a', 'b', 'c'];
+      var redisKey, redisValue;
+
+      var redis = new Redis({
+        redisClient: {
+          lrange: function() {
+            return recentRevisions;
+          },
+          set: function(key, value) {
+            redisKey = key;
+            redisValue = value;
+          }
+        }
+      });
+
+      var promise = redis.activate('key-prefix', 'c');
+      return assert.isFulfilled(promise)
+        .then(function() {
+          assert.equal(redisKey, 'key-prefix:current');
+          assert.equal(redisValue, 'c');
+        });
+    });
+  });
 });
