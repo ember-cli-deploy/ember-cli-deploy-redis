@@ -34,7 +34,7 @@ describe('validate-config', function() {
 
             return previous;
           }, []);
-          assert.equal(messages.length, 4);
+          assert.equal(messages.length, 5);
         });
     });
 
@@ -44,6 +44,7 @@ describe('validate-config', function() {
           assert.isDefined(config.host);
           assert.isDefined(config.port);
           assert.isDefined(config.keyPrefix);
+          assert.isDefined(config.didDeployMessage);
         });
     });
 
@@ -69,7 +70,7 @@ describe('validate-config', function() {
             return previous;
           }, []);
 
-          assert.equal(messages.length, 3);
+          assert.equal(messages.length, 4);
         });
     });
     it('does not add default config to the config object', function() {
@@ -78,6 +79,7 @@ describe('validate-config', function() {
           assert.isDefined(config.host);
           assert.isDefined(config.port);
           assert.isDefined(config.filePattern);
+          assert.isDefined(config.didDeployMessage);
           assert.equal(config.keyPrefix, 'proj:home');
         });
     });
@@ -89,7 +91,7 @@ describe('validate-config', function() {
         url: 'redis://localhost:6379'
       };
     });
-    it('warns about missing optional filePattern and keyPrefix only', function() {
+    it('warns about missing optional filePattern, keyPrefix and didDeployMessage only', function() {
       return assert.isFulfilled(subject(mockUi, config, projectName))
         .then(function() {
           var messages = mockUi.messages.reduce(function(previous, current) {
@@ -100,7 +102,7 @@ describe('validate-config', function() {
             return previous;
           }, []);
 
-          assert.equal(messages.length, 2);
+          assert.equal(messages.length, 3);
         });
     });
 
@@ -110,6 +112,7 @@ describe('validate-config', function() {
           assert.isUndefined(config.host);
           assert.isUndefined(config.port);
           assert.isDefined(config.filePattern);
+          assert.isDefined(config.didDeployMessage);
         });
     });
 

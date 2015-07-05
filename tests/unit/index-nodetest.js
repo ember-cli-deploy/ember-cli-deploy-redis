@@ -37,8 +37,8 @@ describe('redis plugin', function() {
       name: 'test-plugin'
     });
 
-    assert.equal(hooks(plugin).length, 3);
-    assert.sameMembers(hooks(plugin), ['configure', 'upload', 'activate']);
+    assert.equal(hooks(plugin).length, 4);
+    assert.sameMembers(hooks(plugin), ['configure', 'upload', 'activate', 'didDeploy']);
   });
 
   describe('configure hook', function() {
@@ -223,6 +223,7 @@ describe('redis plugin', function() {
       return assert.isFulfilled(plugin.activate.call(plugin, context))
         .then(function() {
           assert.ok(activateCalled);
+          assert.equal(context.activatedRevisionKey, '123abc');
         });
     });
 
@@ -255,6 +256,47 @@ describe('redis plugin', function() {
         .then(function(error) {
           assert.equal(error, 'some-error');
         });
+    });
+  });
+  describe('didDeploy hook', function() {
+    it('prints default message about lack of activation when revision has not been activated', function() {
+      var messageOutput = "";
+
+      var plugin = subject.createDeployPlugin({
+        name: 'redis'
+      });
+      plugin.upload = function(){};
+      plugin.activate = function(){};
+
+      var context = {
+        deployment: {
+          deployEnvironment: 'qa',
+          ui: {
+            write: function(message){
+              messageOutput = messageOutput + message;
+            },
+            writeLine: function(message){
+              messageOutput = messageOutput + message + "\n";
+            }
+          },
+          project: stubProject,
+          config: {
+            redis: {
+              revisionKey: '123abc',
+              activatedRevisionKey: null
+            }
+          }
+        },
+        revisionKey: '123abc',
+      };
+
+      return assert.isFulfilled(plugin.configure.call(plugin, context)).then(function(){
+        return assert.isFulfilled(plugin.didDeploy.call(plugin, context));
+      }).then(function() {
+        assert.match(messageOutput, /Deployed but did not activate revision 123abc./);
+        assert.match(messageOutput, /To activate, run/);
+        assert.match(messageOutput, /ember activate 123abc --environment=qa/);
+      });
     });
   });
 });
