@@ -102,8 +102,23 @@ module.exports = {
 
         return _beginActivateMessage(ui, revisionKey)
           .then(redis.activate.bind(redis, config.keyPrefix, revisionKey))
+          .then(function(){
+            context.activatedRevisionKey = revisionKey;
+          })
           .then(_activationSuccessMessage.bind(this, ui, revisionKey))
           .catch(_errorMessage.bind(this, ui));
+      },
+
+      didDeploy: function(context){
+        var deployment  = context.deployment;
+        var ui          = deployment.ui;
+        var config      = deployment.config[this.name] || {};
+        var didDeployMessage = this._resolveConfigValue('didDeployMessage', config, context);
+        if (didDeployMessage) {
+          ui.write(blue('|      '));
+          ui.write(blue(didDeployMessage + '`\n'));
+        }
+        return Promise.resolve();
       },
 
       _resolvePipelineData: function(config, context) {
