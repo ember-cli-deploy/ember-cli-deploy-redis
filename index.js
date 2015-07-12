@@ -4,14 +4,10 @@
 var Promise   = require('ember-cli/lib/ext/promise');
 var fs        = require('fs');
 
-var chalk     = require('chalk');
-var blue      = chalk.blue;
-var red       = chalk.red;
-
 var denodeify = require('rsvp').denodeify;
 var readFile  = denodeify(fs.readFile);
 
-var validateConfig = require('./lib/utilities/validate-config');
+var DeployPluginBase = require('ember-cli-deploy-plugin');
 
 module.exports = {
   name: 'ember-cli-deploy-redis',
@@ -19,123 +15,96 @@ module.exports = {
   createDeployPlugin: function(options) {
     var Redis = require('./lib/redis');
 
-    function _readFileContents(path) {
-      return readFile(path)
-        .then(function(buffer) {
-          return buffer.toString();
-        });
-    }
-
-    function _beginUploadMessage(ui, indexPath) {
-      ui.write(blue('|      '));
-      ui.write(blue('- Uploading `' + indexPath + '`\n'));
-
-      return Promise.resolve();
-    }
-
-    function _beginActivateMessage(ui, revisionKey) {
-      ui.write(blue('|      '));
-      ui.write(blue('- Activating revision `' + revisionKey + '`\n'));
-
-      return Promise.resolve();
-    }
-
-    function _successMessage(ui, key) {
-      ui.write(blue('|      '));
-      ui.write(blue('- Uploaded with key `' + key + '`\n'));
-
-      return Promise.resolve(key);
-    }
-
-    function _activationSuccessMessage(ui, revisionKey) {
-      ui.write(blue('|      '));
-      ui.write(blue('- ✔ Activated revision `' + revisionKey + '`\n'));
-
-      return Promise.resolve();
-    }
-
-    function _errorMessage(ui, error) {
-      ui.write(blue('|      '));
-      ui.write(red('- ' + error + '`\n'));
-
-      return Promise.reject(error);
-    }
-
-    return {
+    var DeployPlugin = DeployPluginBase.extend({
       name: options.name,
+      defaultConfig: {
+        host: 'localhost',
+        port: 6379,
+        filePattern: 'dist/index.html',
+        keyPrefix: function(context){
+          return context.project.name() + ':index';
+        },
+        didDeployMessage: function(context){
+          if (context.revisionKey && !context.activatedRevisionKey) {
+            return "Deployed but did not activate revision " + context.revisionKey + ". "
+                 + "To activate, run: "
+                 + "ember activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
+          }
+        },
+        revisionKey: function(context) {
+          return context.commandLineArgs.revisionKey || context.revisionKey;
+        },
+        redisDeployClient: function(context) {
+          return context.redisDeployClient || new Redis(context.config.redis);
+        }
+      },
+      configure: function(/* context */) {
+        this.log('validating config');
 
-      configure: function(context) {
-        var deployment  = context.deployment;
-        var ui          = deployment.ui;
-        var config      = deployment.config[this.name] = deployment.config[this.name] || {};
-        var projectName = deployment.project.name();
+        if (!this.pluginConfig.url) {
+          ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
+        }
+        ['filePattern', 'keyPrefix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
 
-        return this._resolvePipelineData(config, context)
-          .then(validateConfig.bind(this, ui, config, projectName));
+        this.log('config ok');
       },
 
-      upload: function(context) {
-        var deployment  = context.deployment;
-        var ui          = deployment.ui;
-        var config      = deployment.config[this.name] || {};
-        var redis       = context.redisClient || new Redis(config);
-        var revisionKey = this._resolveConfigValue('revisionKey', config, context);
+      upload: function(/* context */) {
+        var redisDeployClient = this.readConfig('redisDeployClient');
+        var revisionKey       = this.readConfig('revisionKey');
+        var filePattern       = this.readConfig('filePattern');
+        var keyPrefix         = this.readConfig('keyPrefix');
 
-        var filePattern  = config.filePattern;
-
-        return _beginUploadMessage(ui, filePattern)
-          .then(_readFileContents.bind(this, filePattern))
-          .then(redis.upload.bind(redis, config.keyPrefix, revisionKey))
-          .then(_successMessage.bind(this, ui))
+        this.log('Uploading `' + filePattern + '`');
+        return this._readFileContents(filePattern)
+          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
+          .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
-            return { redisKey: key }
+            return { redisKey: key };
           })
-          .catch(_errorMessage.bind(this, ui));
+          .catch(this._errorMessage.bind(this));
       },
 
-      activate: function(context) {
-        var deployment  = context.deployment;
-        var ui          = deployment.ui;
-        var config      = deployment.config[this.name] || {};
-        var redis       = context.redisClient || new Redis(config);
-        var revisionKey = this._resolveConfigValue('revisionKey', config, context);
+      activate: function(/* context */) {
+        var redisDeployClient       = this.readConfig('redisDeployClient');
+        var revisionKey = this.readConfig('revisionKey');
+        var keyPrefix = this.readConfig('keyPrefix');
 
-        return _beginActivateMessage(ui, revisionKey)
-          .then(redis.activate.bind(redis, config.keyPrefix, revisionKey))
+        this.log('Activating revision `' + revisionKey + '`');
+        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey))
+          .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`'))
           .then(function(){
-            context.activatedRevisionKey = revisionKey;
+            return {
+              activatedRevisionKey: revisionKey
+            };
           })
-          .then(_activationSuccessMessage.bind(this, ui, revisionKey))
-          .catch(_errorMessage.bind(this, ui));
+          .catch(this._errorMessage.bind(this));
       },
 
-      didDeploy: function(context){
-        var deployment  = context.deployment;
-        var ui          = deployment.ui;
-        var config      = deployment.config[this.name] || {};
-        var didDeployMessage = this._resolveConfigValue('didDeployMessage', config, context);
+      didDeploy: function(/* context */){
+        var didDeployMessage = this.readConfig('didDeployMessage');
         if (didDeployMessage) {
-          ui.write(blue('|      '));
-          ui.write(blue(didDeployMessage + '`\n'));
+          this.log(didDeployMessage);
         }
-        return Promise.resolve();
       },
 
-      _resolvePipelineData: function(config, context) {
-        config.revisionKey = config.revisionKey || function(context) {
-          return context.deployment.commandLineArgs.revisionKey || context.revisionKey;
-        };
-
-        return Promise.resolve();
+      _readFileContents: function(path) {
+        return readFile(path)
+          .then(function(buffer) {
+            return buffer.toString();
+          });
       },
 
-      _resolveConfigValue: function(key, config, context) {
-        if(typeof config[key] === 'function') {
-          return config[key](context);
-        }
+      _uploadSuccessMessage: function(key) {
+        this.log('Uploaded with key `' + key + '`');
+        return Promise.resolve(key);
+      },
 
-        return config[key];
+      _errorMessage: function(error) {
+        this.log(error, { color: 'red' });
+        return Promise.reject(error);
       }
-    };
+    });
+    return new DeployPlugin();
   }
 };
