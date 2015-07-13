@@ -162,7 +162,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 6);
+        assert.equal(messages.length, 7);
       });
       it('adds default config to the config object', function() {
         plugin.configure(context);
@@ -200,7 +200,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 5);
+        assert.equal(messages.length, 6);
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -239,7 +239,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 4);
+        assert.equal(messages.length, 5);
       });
 
       it('does not add default config to the config object', function() {
@@ -274,13 +274,14 @@ describe('redis plugin', function() {
             keyPrefix: 'test-prefix',
             filePattern: 'tests/index.html',
             revisionKey: '123abc',
-            redisClient: function(context) {
+            redisDeployClient: function(context) {
               return context.redisClient || new Redis(context.config.redis);
             }
           }
         }
       };
       plugin.beforeHook(context);
+      plugin.configure(context);
 
       return assert.isFulfilled(plugin.upload(context))
         .then(function(result) {
@@ -310,7 +311,7 @@ describe('redis plugin', function() {
             keyPrefix: 'test-prefix',
             filePattern: 'tests/index.html',
             revisionKey: '123abc',
-            redisClient: function(context){ return context.redisClient; }
+            redisDeployClient: function(context){ return context.redisClient; }
           }
         }
       };
@@ -341,7 +342,7 @@ describe('redis plugin', function() {
             keyPrefix: 'test-prefix',
             filePattern: 'tests/index.html',
             revisionKey: '123abc',
-            redisClient: function(context) {
+            redisDeployClient: function(context) {
               return context.redisClient || new Redis(context.config.redis);
             }
           }
