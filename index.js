@@ -20,7 +20,9 @@ module.exports = {
       defaultConfig: {
         host: 'localhost',
         port: 6379,
-        filePattern: 'dist/index.html',
+        filePattern: function(context) {
+          return context.distDir + '/index.html';
+        },
         keyPrefix: function(context){
           return context.project.name() + ':index';
         },
