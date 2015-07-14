@@ -68,13 +68,13 @@ module.exports = {
       },
 
       activate: function(/* context */) {
-        var redisDeployClient       = this.readConfig('redisDeployClient');
+        var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey = this.readConfig('revisionKey');
         var keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Activating revision `' + revisionKey + '`');
         return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey))
-          .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`'))
+          .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
             return {
               activatedRevisionKey: revisionKey
