@@ -2,6 +2,7 @@
 'use strict';
 
 var Promise   = require('ember-cli/lib/ext/promise');
+var path      = require('path');
 var fs        = require('fs');
 
 var denodeify = require('rsvp').denodeify;
@@ -20,8 +21,9 @@ module.exports = {
       defaultConfig: {
         host: 'localhost',
         port: 6379,
-        filePattern: function(context) {
-          return context.distDir + '/index.html';
+        filePattern: 'index.html',
+        distDir: function(context) {
+          return context.distDir;
         },
         keyPrefix: function(context){
           return context.project.name() + ':index';
@@ -30,7 +32,7 @@ module.exports = {
           if (context.revisionKey && !context.activatedRevisionKey) {
             return "Deployed but did not activate revision " + context.revisionKey + ". "
                  + "To activate, run: "
-                 + "ember activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
+                 + "ember deploy:activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
           }
         },
         revisionKey: function(context) {
@@ -46,7 +48,7 @@ module.exports = {
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
-        ['filePattern', 'keyPrefix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
+        ['filePattern', 'distDir', 'keyPrefix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok');
       },
@@ -54,11 +56,13 @@ module.exports = {
       upload: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
+        var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
+        var filePath          = path.join(distDir, filePattern);
 
-        this.log('Uploading `' + filePattern + '`');
-        return this._readFileContents(filePattern)
+        this.log('Uploading `' + filePath + '`');
+        return this._readFileContents(filePath)
           .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
