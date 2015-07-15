@@ -162,7 +162,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 7);
+        assert.equal(messages.length, 8);
       });
       it('adds default config to the config object', function() {
         plugin.configure(context);
@@ -191,7 +191,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, revisionKey, didDeployMessage, and connection info', function() {
+      it('warns about missing optional filePattern, distDir, revisionKey, didDeployMessage, and connection info', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -200,7 +200,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 6);
+        assert.equal(messages.length, 7);
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -230,7 +230,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, keyPrefix, revisionKey and didDeployMessage only', function() {
+      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey and didDeployMessage only', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -239,7 +239,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 5);
+        assert.equal(messages.length, 6);
       });
 
       it('does not add default config to the config object', function() {
@@ -272,7 +272,8 @@ describe('redis plugin', function() {
         config: {
           redis: {
             keyPrefix: 'test-prefix',
-            filePattern: 'tests/index.html',
+            filePattern: 'index.html',
+            distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
               return context.redisClient || new Redis(context.config.redis);
@@ -309,7 +310,8 @@ describe('redis plugin', function() {
         config: {
           redis: {
             keyPrefix: 'test-prefix',
-            filePattern: 'tests/index.html',
+            filePattern: 'index.html',
+            distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context){ return context.redisClient; }
           }
@@ -340,7 +342,8 @@ describe('redis plugin', function() {
         config: {
           redis: {
             keyPrefix: 'test-prefix',
-            filePattern: 'tests/index.html',
+            filePattern: 'index.html',
+            distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
               return context.redisClient || new Redis(context.config.redis);
@@ -391,7 +394,7 @@ describe('redis plugin', function() {
       plugin.didDeploy(context);
       assert.match(messageOutput, /Deployed but did not activate revision 123abc./);
       assert.match(messageOutput, /To activate, run/);
-      assert.match(messageOutput, /ember activate 123abc --environment=qa/);
+      assert.match(messageOutput, /ember deploy:activate 123abc --environment=qa/);
     });
   });
 });
