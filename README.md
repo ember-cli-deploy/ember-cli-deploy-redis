@@ -51,12 +51,17 @@ ember install ember-cli-deploy-redis
 ```
 
 ## ember-cli-deploy Hooks Implemented
+
+For detailed information on what plugin hooks are and how they work, please refer to the [Plugin Documentation][2].
+
 - `configure`
 - `upload`
 - `activate`
 - `didDeploy`
 
 ## Configuration Options
+
+For detailed information on how configuration of plugins works, please refer to the [Plugin Documentation][2].
 
 ### host
 
@@ -125,6 +130,70 @@ if (context.revisionKey && !context.activatedRevisionKey) {
        + "ember deploy:activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
 }
 ```
+
+## Activation
+
+As well as uploading a file to Redis, *ember-cli-deploy-redis* has the ability to mark a revision of a deployed file as `current`. This is most commonly used in the [lightning method of deployment][1] whereby an index.html file is pushed to Redis and then served to the user by a web server. The web server could be configured to return any existing revision of the index.html file as requested by a query parameter. However, the revision marked as the currently `active` revision would be returned if no query paramter is present. For more detailed information on this method of deployment please refer to the [ember-cli-deploy-lightning-pack README][1].
+
+### How do I activate a revision?
+
+A user can activate a revision by either:
+
+- Passing a command line argument to the `deploy` command:
+
+```bash
+$ ember deploy --activate=true
+```
+
+- Running the `deploy:activate` command:
+
+```bash
+$ ember deploy:activate <revision-key>
+```
+
+- Setting the `activateOnDeploy` flag in `deploy.js`
+
+```javascript
+ENV.pipeline {
+  activateOnDeploy: true
+}
+```
+
+### What does activation do?
+
+When *ember-cli-deploy-redis* uploads a file to Redis, it uploads it under the key defined by a combination of the two config properties `keyPrefix` and `revisionKey`.
+
+So, if the `keyPrefix` was configured to be `my-app:index` and there had been 3 revisons deployed, then Redis might look something like this:
+
+```bash
+$ redis-cli
+
+127.0.0.1:6379> KEYS *
+1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+3) my-app:index:f769d3afb67bd20ccdb083549048c86c
+```
+
+Activating a revison would add a new entry to Redis pointing to the currently active revision:
+
+```bash
+$ ember deploy:activate f769d3afb67bd20ccdb083549048c86c
+
+$ redis-cli
+
+127.0.0.1:6379> KEYS *
+1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+3) my-app:index:f769d3afb67bd20ccdb083549048c86c
+4) my-app:index:current
+
+127.0.0.1:6379> GET my-app:index:current
+"f769d3afb67bd20ccdb083549048c86c"
+```
+
+### When does activation occur?
+
+Activation occurs during the `activate` hook of the pipeline. By default, activation is turned off and must be explicitly enabled by one of the 3 methods above.
 
 ## Prerequisites
 
