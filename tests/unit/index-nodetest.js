@@ -87,7 +87,7 @@ describe('redis plugin', function() {
         assert.equal(plugin.readConfig('revisionKey'), '12345');
       });
 
-      it('uses the commandLineArgs value if it exists', function() {
+      it('uses the commandOptions value if it exists', function() {
         var plugin = subject.createDeployPlugin({
           name: 'redis'
         });
@@ -102,8 +102,8 @@ describe('redis plugin', function() {
           config: {
             redis: config
           },
-          commandLineArgs: {
-            revisionKey: 'abcd'
+          commandOptions: {
+            revision: 'abcd'
           },
           revisionKey: 'something-else'
         };
@@ -114,7 +114,7 @@ describe('redis plugin', function() {
         assert.equal(config.revisionKey(context), 'abcd');
       });
 
-      it('uses the context value if it exists and commandLineArgs doesn\'t', function() {
+      it('uses the context value if it exists and commandOptions doesn\'t', function() {
         var plugin = subject.createDeployPlugin({
           name: 'redis'
         });
@@ -129,7 +129,7 @@ describe('redis plugin', function() {
           config: {
             redis: config
           },
-          commandLineArgs: { },
+          commandOptions: { },
           revisionKey: 'something-else'
         };
 
@@ -370,7 +370,7 @@ describe('redis plugin', function() {
       plugin.activate = function(){};
 
       var context = {
-        deployEnvironment: 'qa',
+        deployTarget: 'qa',
         ui: {
           write: function(message){
             messageOutput = messageOutput + message;
@@ -394,7 +394,7 @@ describe('redis plugin', function() {
       plugin.didDeploy(context);
       assert.match(messageOutput, /Deployed but did not activate revision 123abc./);
       assert.match(messageOutput, /To activate, run/);
-      assert.match(messageOutput, /ember deploy:activate 123abc --environment=qa/);
+      assert.match(messageOutput, /ember deploy:activate qa --revision=123abc/);
     });
   });
 });
