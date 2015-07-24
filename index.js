@@ -32,11 +32,11 @@ module.exports = {
           if (context.revisionKey && !context.activatedRevisionKey) {
             return "Deployed but did not activate revision " + context.revisionKey + ". "
                  + "To activate, run: "
-                 + "ember deploy:activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
+                 + "ember deploy:activate " + context.deployTarget + " --revision=" + context.revisionKey + "\n";
           }
         },
         revisionKey: function(context) {
-          return context.commandLineArgs.revisionKey || context.revisionKey;
+          return context.commandOptions.revision || context.revisionKey;
         },
         redisDeployClient: function(context) {
           return context.redisDeployClient || new Redis(context.config.redis);
