@@ -2,6 +2,7 @@
 
 var Promise = require('ember-cli/lib/ext/promise');
 var assert  = require('ember-cli/tests/helpers/assert');
+var CoreObject = require('core-object');
 
 var stubProject = {
   name: function(){
@@ -53,13 +54,45 @@ describe('redis plugin', function() {
         config: {
           redis: {
             host: 'somehost',
-            port: 1234
+            port: 1234,
+            database: 4
           }
         }
       };
       plugin.beforeHook(context);
       plugin.configure(context);
       assert.ok(true); // didn't throw an error
+    });
+
+    it('passes through config options', function () {
+      var plugin = subject.createDeployPlugin({
+        name: 'redis'
+      });
+
+      var redisDeployClientClassInitialised = false;
+      var context = {
+        ui: mockUi,
+        project: stubProject,
+        config: {
+          redis: {
+            host: 'somehost',
+            port: 1234,
+            database: 4
+          }
+        },
+        redisDeployClientClass: CoreObject.extend({
+          init: function (options) {
+            assert.equal(options.host, 'somehost');
+            assert.equal(options.port, 1234);
+            assert.equal(options.database, 4);
+            redisDeployClientClassInitialised = true;
+          }
+        })
+      };
+      plugin.beforeHook(context);
+      plugin.configure(context);
+      plugin.readConfig("redisDeployClient");
+      assert.ok(redisDeployClientClassInitialised);
     });
 
     describe('resolving revisionKey from the pipeline', function() {

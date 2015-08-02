@@ -39,7 +39,11 @@ module.exports = {
           return context.commandOptions.revision || context.revisionKey;
         },
         redisDeployClient: function(context) {
-          return context.redisDeployClient || new Redis(context.config.redis);
+          if(context.redisDeployClient) {
+            return context.redisDeployClient;
+          }
+
+          return new (context.redisDeployClientClass || Redis)(context.config.redis);
         }
       },
       configure: function(/* context */) {

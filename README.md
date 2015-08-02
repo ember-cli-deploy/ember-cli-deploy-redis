@@ -75,6 +75,12 @@ The Redis port. If [url](#url) is defined, then this option is not needed.
 
 *Default:* `6379`
 
+### database
+
+The Redis database number. If [url](#url) is defined, then this option is not needed.
+
+*Default:* `undefined`
+
 ### password
 
 The Redis password. If [url](#url) is defined, then this option is not needed.
