@@ -1,5 +1,9 @@
 'use strict';
 
+var FakeRedis = require('../../helpers/fake-redis-lib');
+var FakeClient = require('../../helpers/fake-redis-client');
+
+
 var Promise = require('ember-cli/lib/ext/promise');
 var assert  = require('ember-cli/tests/helpers/assert');
 var CoreObject = require('core-object');
@@ -9,26 +13,6 @@ describe('redis', function() {
 
   before(function() {
     Redis = require('../../../lib/redis');
-  });
-
-  var FakeClient = CoreObject.extend({
-    get: function(key) {
-      return Promise.resolve('some-other-value');
-    },
-    set: function() { },
-    lpush: function() { },
-    ltrim: function() { }
-  });
-
-  var FakeRedis = CoreObject.extend({
-    init: function(clientClass) {
-        this.clientClass = clientClass || FakeClient;
-    },
-
-    createClient: function(options) {
-      this.options = options;
-      return new this.clientClass()
-    }
   });
 
   describe('#upload', function() {

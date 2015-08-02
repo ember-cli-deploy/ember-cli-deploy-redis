@@ -2,25 +2,11 @@
 
 var Promise = require('ember-cli/lib/ext/promise');
 var assert  = require('ember-cli/tests/helpers/assert');
-var CoreObject = require('core-object');
+var FakeRedis = require('../helpers/fake-redis-lib');
 
 var stubProject = {
   name: function(){
     return 'my-project';
-  }
-};
-
-var fakeClient = {
-  createClient: function(options) {
-    this.options = options;
-    return {
-      get: function(key) {
-        return Promise.resolve('some-other-value');
-      },
-      set: function() { },
-      lpush: function() { },
-      ltrim: function() { }
-    }
   }
 };
 
@@ -83,6 +69,8 @@ describe('redis plugin', function() {
         name: 'redis'
       });
 
+      var redisLib = new FakeRedis();
+
       var context = {
         ui: mockUi,
         project: stubProject,
@@ -93,15 +81,15 @@ describe('redis plugin', function() {
             database: 4
           }
         },
-        _redisLib: fakeClient
+        _redisLib: redisLib
       };
       plugin.beforeHook(context);
       plugin.configure(context);
       plugin.readConfig('redisDeployClient');
 
-      assert.equal(fakeClient.options.host, 'somehost');
-      assert.equal(fakeClient.options.port, 1234);
-      assert.equal(fakeClient.options.database, 4);
+      assert.equal(redisLib.createdClient.options.host, 'somehost');
+      assert.equal(redisLib.createdClient.options.port, 1234);
+      assert.equal(redisLib.createdClient.options.database, 4);
     });
 
     describe('resolving revisionKey from the pipeline', function() {
@@ -290,6 +278,34 @@ describe('redis plugin', function() {
         assert.isUndefined(config.redis.port);
         assert.isDefined(config.redis.filePattern);
         assert.isDefined(config.redis.didDeployMessage);
+      });
+    });
+
+    describe('with aliases', function () {
+      it('passes config for specified alias to redis', function () {
+        var plugin = subject.createDeployPlugin({
+          name: 'foobar'
+        });
+
+        var redisLib = new FakeRedis();
+
+        var config = {
+          database: 7
+        };
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            foobar: config
+          },
+          _redisLib: redisLib
+        };
+
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        plugin.readConfig('redisDeployClient');
+
+        assert.equal(redisLib.createdClient.options.database, 7);
       });
     });
   });
