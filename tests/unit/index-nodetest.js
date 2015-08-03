@@ -10,6 +10,20 @@ var stubProject = {
   }
 };
 
+var fakeClient = {
+  createClient: function(options) {
+    this.options = options;
+    return {
+      get: function(key) {
+        return Promise.resolve('some-other-value');
+      },
+      set: function() { },
+      lpush: function() { },
+      ltrim: function() { }
+    }
+  }
+};
+
 describe('redis plugin', function() {
   var subject, mockUi;
 
@@ -69,7 +83,6 @@ describe('redis plugin', function() {
         name: 'redis'
       });
 
-      var redisDeployClientClassInitialised = false;
       var context = {
         ui: mockUi,
         project: stubProject,
@@ -80,19 +93,15 @@ describe('redis plugin', function() {
             database: 4
           }
         },
-        redisDeployClientClass: CoreObject.extend({
-          init: function (options) {
-            assert.equal(options.host, 'somehost');
-            assert.equal(options.port, 1234);
-            assert.equal(options.database, 4);
-            redisDeployClientClassInitialised = true;
-          }
-        })
+        redisDeployClient: fakeClient
       };
       plugin.beforeHook(context);
       plugin.configure(context);
-      plugin.readConfig("redisDeployClient");
-      assert.ok(redisDeployClientClassInitialised);
+      plugin.readConfig('redisDeployClient');
+
+      assert.equal(fakeClient.options.host, 'somehost');
+      assert.equal(fakeClient.options.port, 1234);
+      assert.equal(fakeClient.options.database, 4);
     });
 
     describe('resolving revisionKey from the pipeline', function() {
@@ -295,11 +304,6 @@ describe('redis plugin', function() {
       });
 
       context = {
-        redisClient: {
-          upload: function(keyPrefix, revisionKey) {
-            return Promise.resolve(keyPrefix + ':' + revisionKey);
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -309,7 +313,11 @@ describe('redis plugin', function() {
             distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
-              return context.redisClient || new Redis(context.config.redis);
+              return {
+                upload: function(keyPrefix, revisionKey) {
+                  return Promise.resolve(keyPrefix + ':' + revisionKey);
+                }
+              };
             }
           }
         }
@@ -333,11 +341,6 @@ describe('redis plugin', function() {
       });
 
       var context = {
-        redisClient: {
-          activate: function() {
-            activateCalled = true;
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -346,7 +349,13 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context){ return context.redisClient; }
+            redisDeployClient: function(context){
+              return {
+                activate: function() {
+                  activateCalled = true;
+                }
+              };
+            }
           }
         }
       };
@@ -365,11 +374,6 @@ describe('redis plugin', function() {
       });
 
       var context = {
-        redisClient: {
-          activate: function() {
-            return Promise.reject('some-error');
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -379,7 +383,11 @@ describe('redis plugin', function() {
             distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
-              return context.redisClient || new Redis(context.config.redis);
+              return {
+                activate: function() {
+                  return Promise.reject('some-error');
+                }
+              };
             }
           }
         }

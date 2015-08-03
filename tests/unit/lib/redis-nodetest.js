@@ -10,18 +10,23 @@ describe('redis', function() {
     Redis = require('../../../lib/redis');
   });
 
+  var fakeClient = {
+    createClient: function(options) {
+      this.options = options;
+      return {
+        get: function(key) {
+          return Promise.resolve('some-other-value');
+        },
+        set: function() { },
+        lpush: function() { },
+        ltrim: function() { }
+      }
+    }
+  };
+
   describe('#upload', function() {
     it('rejects if the key already exists in redis', function() {
-      var redis = new Redis({
-        redisClient: {
-          get: function(key) {
-            return Promise.resolve('some-other-value');
-          },
-          set: function() { },
-          lpush: function() { },
-          ltrim: function() { }
-        }
-      });
+      var redis = new Redis({}, fakeClient);
 
       var promise = redis.upload('key', 'value');
       return assert.isRejected(promise, /^Value already exists for key: key:default$/);
