@@ -40,9 +40,9 @@ module.exports = {
         },
         redisDeployClient: function(context) {
           var options = context.config.redis;
-          var fakeRedis = context.redisDeployClient;
+          var redisLib = context._redisLib;
 
-          return new Redis(options, fakeRedis);
+          return new Redis(options, redisLib);
         }
       },
       configure: function(/* context */) {

@@ -93,7 +93,7 @@ describe('redis plugin', function() {
             database: 4
           }
         },
-        redisDeployClient: fakeClient
+        _redisLib: fakeClient
       };
       plugin.beforeHook(context);
       plugin.configure(context);

@@ -2,6 +2,7 @@
 
 var Promise = require('ember-cli/lib/ext/promise');
 var assert  = require('ember-cli/tests/helpers/assert');
+var CoreObject = require('core-object');
 
 describe('redis', function() {
   var Redis;
@@ -10,23 +11,29 @@ describe('redis', function() {
     Redis = require('../../../lib/redis');
   });
 
-  var fakeClient = {
+  var FakeClient = CoreObject.extend({
+    get: function(key) {
+      return Promise.resolve('some-other-value');
+    },
+    set: function() { },
+    lpush: function() { },
+    ltrim: function() { }
+  });
+
+  var FakeRedis = CoreObject.extend({
+    init: function(clientClass) {
+        this.clientClass = clientClass || FakeClient;
+    },
+
     createClient: function(options) {
       this.options = options;
-      return {
-        get: function(key) {
-          return Promise.resolve('some-other-value');
-        },
-        set: function() { },
-        lpush: function() { },
-        ltrim: function() { }
-      }
+      return new this.clientClass()
     }
-  };
+  });
 
   describe('#upload', function() {
     it('rejects if the key already exists in redis', function() {
-      var redis = new Redis({}, fakeClient);
+      var redis = new Redis({}, new FakeRedis());
 
       var promise = redis.upload('key', 'value');
       return assert.isRejected(promise, /^Value already exists for key: key:default$/);
@@ -35,18 +42,14 @@ describe('redis', function() {
     it('uploads the contents if the key does not already exist', function() {
       var fileUploaded = false;
 
-      var redis = new Redis({
-        redisClient: {
-          get: function(key) {
-            return Promise.resolve(null);
-          },
-          set: function(key, value) {
-            fileUploaded = true;
-          },
-          lpush: function() { },
-          ltrim: function() { }
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function(key) {
+          return Promise.resolve(null);
+        },
+        set: function(key, value) {
+          fileUploaded = true;
         }
-      });
+      })));
 
       var promise = redis.upload('key', 'value');
       return assert.isFulfilled(promise)
@@ -59,18 +62,12 @@ describe('redis', function() {
       var fileUploaded = false;
 
       var redis = new Redis({
-        allowOverwrite: true,
-        redisClient: {
-          get: function(key) {
-            return Promise.resolve('some-other-value');
-          },
-          set: function(key, value) {
-            fileUploaded = true;
-          },
-          lpush: function() { },
-          ltrim: function() { }
+        allowOverwrite: true
+      }, new FakeRedis(FakeClient.extend({
+        set: function(key, value) {
+          fileUploaded = true;
         }
-      });
+      })));
 
       var promise = redis.upload('key', 'value');
       return assert.isFulfilled(promise)
@@ -82,19 +79,14 @@ describe('redis', function() {
     it('updates the list of recent uploads once upload is successful', function() {
       var recentUploads = [];
 
-      var redis = new Redis({
-        redisClient: {
-          get: function(key) {
-            return Promise.resolve(null);
-          },
-          set: function(key, value) {
-          },
-          lpush: function(key, tag) {
-            recentUploads.push(key + tag);
-          },
-          ltrim: function() { }
-        }
-      });
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function(key) {
+          return Promise.resolve(null);
+        },
+        lpush: function(key, tag) {
+          recentUploads.push(key + tag);
+        },
+      })));
 
       var promise = redis.upload('key', 'value');
       return assert.isFulfilled(promise)
@@ -107,21 +99,17 @@ describe('redis', function() {
     it('trims the list of recent uploads', function() {
       var recentUploads = ['a', 'b', 'c'];
 
-      var redis = new Redis({
-        redisClient: {
-          get: function(key) {
-            return Promise.resolve(null);
-          },
-          set: function(key, value) {
-          },
-          lpush: function(key, tag) {
-            recentUploads.push(key + tag);
-          },
-          ltrim: function() {
-            recentUploads.pop();
-          }
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function(key) {
+          return Promise.resolve(null);
+        },
+        lpush: function(key, tag) {
+          recentUploads.push(key + tag);
+        },
+        ltrim: function() {
+          recentUploads.pop();
         }
-      });
+      })));
 
       var promise = redis.upload('key', 'value');
       return assert.isFulfilled(promise)
@@ -133,17 +121,13 @@ describe('redis', function() {
     describe('generating the redis key', function() {
       it('will use just the default tag if the tag is not provided', function() {
         var redisKey = null;
-        var redis = new Redis({
-          redisClient: {
-            get: function(key) {
+
+        var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+          get: function(key) {
               redisKey = key;
               return Promise.resolve('some-other-value');
-            },
-            set: function() { },
-            lpush: function() { },
-            ltrim: function() { }
           }
-        });
+        })));
 
         var promise = redis.upload('key', 'value');
         return assert.isRejected(promise)
@@ -154,17 +138,12 @@ describe('redis', function() {
 
       it('will use the key and the tag if the tag is provided', function() {
         var redisKey = null;
-        var redis = new Redis({
-          redisClient: {
-            get: function(key) {
+        var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+          get: function(key) {
               redisKey = key;
               return Promise.resolve('some-other-value');
-            },
-            set: function() { },
-            lpush: function() { },
-            ltrim: function() { }
-          }
-        });
+            }
+        })));
 
         var promise = redis.upload('key', 'tag', 'value');
         return assert.isRejected(promise)
@@ -179,13 +158,11 @@ describe('redis', function() {
     it('rejects if the revisionKey doesn\t exist in list of uploaded revisions', function() {
       var recentRevisions = ['a', 'b', 'c'];
 
-      var redis = new Redis({
-        redisClient: {
-          lrange: function() {
-            return recentRevisions;
-          }
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        lrange: function() {
+          return recentRevisions;
         }
-      });
+      })));
 
       var promise = redis.activate('key-prefix', 'revision-key');
       return assert.isRejected(promise)
@@ -198,17 +175,16 @@ describe('redis', function() {
       var recentRevisions = ['a', 'b', 'c'];
       var redisKey, redisValue;
 
-      var redis = new Redis({
-        redisClient: {
-          lrange: function() {
-            return recentRevisions;
-          },
-          set: function(key, value) {
-            redisKey = key;
-            redisValue = value;
-          }
+
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        lrange: function() {
+          return recentRevisions;
+        },
+        set: function(key, value) {
+          redisKey = key;
+          redisValue = value;
         }
-      });
+      })));
 
       var promise = redis.activate('key-prefix', 'c');
       return assert.isFulfilled(promise)
