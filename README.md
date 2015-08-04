@@ -75,6 +75,12 @@ The Redis port. If [url](#url) is defined, then this option is not needed.
 
 *Default:* `6379`
 
+### database
+
+The Redis database number. If [url](#url) is defined, then this option is not needed.
+
+*Default:* `undefined`
+
 ### password
 
 The Redis password. If [url](#url) is defined, then this option is not needed.
@@ -113,9 +119,9 @@ The unique revision number for the version of the file being uploaded to Redis. 
 
 ### redisDeployClient
 
-The Redis client to be used to upload files to the Redis store. By default this option will use a new instance of the [Redis][3] client unless another client is provided in the `redisDeployClient` property of the deployment context. This allows for injection of a mock client for testing purposes.
+The Redis client to be used to upload files to the Redis store. By default this option will use a new instance of the [Redis][3] client. This allows for injection of a mock client for testing purposes.
 
-*Default:* `context.redisDeployClient || new Redis(context.config.redis)`
+*Default:* `return new Redis(options)`
 
 ### didDeployMessage
 

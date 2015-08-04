@@ -2,10 +2,25 @@
 
 var Promise = require('ember-cli/lib/ext/promise');
 var assert  = require('ember-cli/tests/helpers/assert');
+var CoreObject = require('core-object');
 
 var stubProject = {
   name: function(){
     return 'my-project';
+  }
+};
+
+var fakeClient = {
+  createClient: function(options) {
+    this.options = options;
+    return {
+      get: function(key) {
+        return Promise.resolve('some-other-value');
+      },
+      set: function() { },
+      lpush: function() { },
+      ltrim: function() { }
+    }
   }
 };
 
@@ -53,13 +68,40 @@ describe('redis plugin', function() {
         config: {
           redis: {
             host: 'somehost',
-            port: 1234
+            port: 1234,
+            database: 4
           }
         }
       };
       plugin.beforeHook(context);
       plugin.configure(context);
       assert.ok(true); // didn't throw an error
+    });
+
+    it('passes through config options', function () {
+      var plugin = subject.createDeployPlugin({
+        name: 'redis'
+      });
+
+      var context = {
+        ui: mockUi,
+        project: stubProject,
+        config: {
+          redis: {
+            host: 'somehost',
+            port: 1234,
+            database: 4
+          }
+        },
+        _redisLib: fakeClient
+      };
+      plugin.beforeHook(context);
+      plugin.configure(context);
+      plugin.readConfig('redisDeployClient');
+
+      assert.equal(fakeClient.options.host, 'somehost');
+      assert.equal(fakeClient.options.port, 1234);
+      assert.equal(fakeClient.options.database, 4);
     });
 
     describe('resolving revisionKey from the pipeline', function() {
@@ -262,11 +304,6 @@ describe('redis plugin', function() {
       });
 
       context = {
-        redisClient: {
-          upload: function(keyPrefix, revisionKey) {
-            return Promise.resolve(keyPrefix + ':' + revisionKey);
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -276,7 +313,11 @@ describe('redis plugin', function() {
             distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
-              return context.redisClient || new Redis(context.config.redis);
+              return {
+                upload: function(keyPrefix, revisionKey) {
+                  return Promise.resolve(keyPrefix + ':' + revisionKey);
+                }
+              };
             }
           }
         }
@@ -300,11 +341,6 @@ describe('redis plugin', function() {
       });
 
       var context = {
-        redisClient: {
-          activate: function() {
-            activateCalled = true;
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -313,7 +349,13 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context){ return context.redisClient; }
+            redisDeployClient: function(context){
+              return {
+                activate: function() {
+                  activateCalled = true;
+                }
+              };
+            }
           }
         }
       };
@@ -332,11 +374,6 @@ describe('redis plugin', function() {
       });
 
       var context = {
-        redisClient: {
-          activate: function() {
-            return Promise.reject('some-error');
-          }
-        },
         ui: mockUi,
         project: stubProject,
         config: {
@@ -346,7 +383,11 @@ describe('redis plugin', function() {
             distDir: 'tests',
             revisionKey: '123abc',
             redisDeployClient: function(context) {
-              return context.redisClient || new Redis(context.config.redis);
+              return {
+                activate: function() {
+                  return Promise.reject('some-error');
+                }
+              };
             }
           }
         }
