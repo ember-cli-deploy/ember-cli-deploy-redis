@@ -1,4 +1,4 @@
-# Ember-cli-deploy-redis
+# ember-cli-deploy-redis
 
 > An ember-cli-deploy-plugin to upload index.html to a Redis store
 
