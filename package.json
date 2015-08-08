@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-deploy-redis",
-  "version": "0.0.0",
+  "version": "0.1.0-beta.1",
   "description": "Ember CLI Deploy plugin to deploy file(s) into redis.",
   "directories": {
     "doc": "doc",
@@ -34,8 +34,10 @@
     "ember-disable-prototype-extensions": "^1.0.0",
     "ember-export-application-global": "^1.0.2",
     "ember-try": "0.0.4",
+    "github": "^0.2.4",
     "glob": "^5.0.5",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.4",
+    "multiline": "^1.0.2"
   },
   "keywords": [
     "ember-addon",
