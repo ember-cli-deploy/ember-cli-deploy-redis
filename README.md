@@ -115,7 +115,13 @@ The prefix to be used for the Redis key under which file will be uploaded to Red
 
 The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revisionKey` passed in from the command line or the `revisionKey` property from the deployment context.
 
-*Default:* `context.commandLineArgs.revisionKey || context.revisionKey` 
+*Default:* `context.commandLineArgs.revisionKey || context.revisionKey`
+
+### allowOverwrite
+
+A flag to specify whether the revision should be overwritten if it already exists in Redis.
+
+*Default:* `false`
 
 ### redisDeployClient
 
