@@ -178,4 +178,68 @@ describe('redis', function() {
         });
     });
   });
+
+  describe('#fetchRevisions', function() {
+    it('lists the last existing revisions', function() {
+      var recentRevisions = ['a', 'b', 'c'];
+
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        lrange: function() {
+          return recentRevisions;
+        },
+        get: function() {
+        }
+      })));
+
+      var promise = redis.fetchRevisions('key-prefix');
+      return assert.isFulfilled(promise)
+        .then(function(result) {
+          assert.deepEqual(result, [
+            {
+              revision: 'a',
+              active: false
+            },
+            {
+              revision: 'b',
+              active: false
+            },
+            {
+              revision: 'c',
+              active: false
+            }
+          ]
+        );
+      });
+    });
+
+    it('lists revisions and marks the active one', function() {
+      var recentRevisions = ['a', 'b'];
+      var currentRevision = 'b';
+
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        lrange: function() {
+          return recentRevisions;
+        },
+        get: function() {
+          return currentRevision;
+        }
+      })));
+
+      var promise = redis.fetchRevisions('key-prefix');
+      return assert.isFulfilled(promise)
+        .then(function(result) {
+          assert.deepEqual(result, [
+            {
+              revision: 'a',
+              active: false
+            },
+            {
+              revision: 'b',
+              active: true
+            }
+          ]
+        );
+      });
+    });
+  });
 });
