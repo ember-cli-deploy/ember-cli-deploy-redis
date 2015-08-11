@@ -32,6 +32,10 @@ describe('redis', function() {
         },
         set: function(key, value) {
           fileUploaded = true;
+        },
+        zadd: function(key, score, tag) {
+        },
+        zremrangebyrank: function() {
         }
       })));
 
@@ -50,6 +54,10 @@ describe('redis', function() {
       }, new FakeRedis(FakeClient.extend({
         set: function(key, value) {
           fileUploaded = true;
+        },
+        zadd: function(key, score, tag) {
+        },
+        zremrangebyrank: function() {
         }
       })));
 
@@ -67,9 +75,11 @@ describe('redis', function() {
         get: function(key) {
           return Promise.resolve(null);
         },
-        lpush: function(key, tag) {
+        zadd: function(key, score , tag) {
           recentUploads.push(key + tag);
         },
+        zremrangebyrank: function() {
+        }
       })));
 
       var promise = redis.upload('key', 'value');
@@ -87,10 +97,10 @@ describe('redis', function() {
         get: function(key) {
           return Promise.resolve(null);
         },
-        lpush: function(key, tag) {
+        zadd: function(key, tag) {
           recentUploads.push(key + tag);
         },
-        ltrim: function() {
+        zremrangebyrank: function() {
           recentUploads.pop();
         }
       })));
@@ -143,7 +153,7 @@ describe('redis', function() {
       var recentRevisions = ['a', 'b', 'c'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        lrange: function() {
+        zrevrange: function() {
           return recentRevisions;
         }
       })));
@@ -161,7 +171,7 @@ describe('redis', function() {
 
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        lrange: function() {
+        zrevrange: function() {
           return recentRevisions;
         },
         set: function(key, value) {
