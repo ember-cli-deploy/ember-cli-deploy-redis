@@ -97,6 +97,18 @@ module.exports = {
         }
       },
 
+      fetchRevisions: function(context) {
+        var redisDeployClient = this.readConfig('redisDeployClient');
+        var keyPrefix = this.readConfig('keyPrefix');
+
+        this.log('Listing revisions for key: `' + keyPrefix + '`');
+        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+          .then(function(revisions){
+            return { revisions: revisions };
+          })
+          .catch(this._errorMessage.bind(this));
+      },
+
       _readFileContents: function(path) {
         return readFile(path)
           .then(function(buffer) {
