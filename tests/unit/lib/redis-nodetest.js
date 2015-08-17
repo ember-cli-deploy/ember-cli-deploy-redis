@@ -194,7 +194,7 @@ describe('redis', function() {
       var recentRevisions = ['a', 'b', 'c'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        lrange: function() {
+        zrevrange: function() {
           return recentRevisions;
         },
         get: function() {
@@ -227,7 +227,7 @@ describe('redis', function() {
       var currentRevision = 'b';
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        lrange: function() {
+        zrevrange: function() {
           return recentRevisions;
         },
         get: function() {
