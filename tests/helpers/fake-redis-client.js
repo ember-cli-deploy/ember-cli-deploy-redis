@@ -8,6 +8,13 @@ module.exports = CoreObject.extend({
     return Promise.resolve('some-other-value');
   },
   set: function() { },
-  lpush: function() { },
-  ltrim: function() { }
+  del: function() { },
+  zadd: function(key, score, tag) {
+  },
+  zrem: function() {
+  },
+  zrange: function() {
+  },
+  zrevrange: function() {
+  }
 });

@@ -32,10 +32,6 @@ describe('redis', function() {
         },
         set: function(key, value) {
           fileUploaded = true;
-        },
-        zadd: function(key, score, tag) {
-        },
-        zremrangebyrank: function() {
         }
       })));
 
@@ -54,10 +50,6 @@ describe('redis', function() {
       }, new FakeRedis(FakeClient.extend({
         set: function(key, value) {
           fileUploaded = true;
-        },
-        zadd: function(key, score, tag) {
-        },
-        zremrangebyrank: function() {
         }
       })));
 
@@ -77,8 +69,6 @@ describe('redis', function() {
         },
         zadd: function(key, score , tag) {
           recentUploads.push(key + tag);
-        },
-        zremrangebyrank: function() {
         }
       })));
 
@@ -90,25 +80,71 @@ describe('redis', function() {
         });
     });
 
-    it('trims the list of recent uploads', function() {
-      var recentUploads = ['a', 'b', 'c'];
+    it('trims the list of recent uploads and removes the index key', function() {
+      var recentUploads = ['1','2','3','4','5','6','7','8','9','10','11'];
+      var finalUploads  = ['3','4','5','6','7','8','9','10','11','12'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
           return Promise.resolve(null);
         },
-        zadd: function(key, tag) {
-          recentUploads.push(key + tag);
+        set: function(key, value) {
         },
-        zremrangebyrank: function() {
-          recentUploads.pop();
+        zadd: function(key, score, revisionKey) {
+          recentUploads.push(revisionKey);
+        },
+        zrem: function(val,revision) {
+          var i = recentUploads.indexOf(revision)
+          recentUploads.splice(i,1);
+        },
+        zrange: function() {
+          return recentUploads.slice(0,2);
+        },
+        del: function(key) {
+          assert(key === 'key:1' || key === 'key:2');
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', '12', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
-          assert.equal(recentUploads.length, 3);
+          assert.equal(recentUploads.length, 10);
+          assert.deepEqual(recentUploads, finalUploads);
+        });
+    });
+
+    it('trims the list of recent uploads but leaves the active one', function() {
+      var recentUploads = ['1','2','3','4','5','6','7','8','9','10','11'];
+      var finalUploads  = ['1','3','4','5','6','7','8','9','10','11','12'];
+
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function(key) {
+          if (key == 'key:current') {
+            return Promise.resolve('1');
+          }
+          return Promise.resolve(null);
+        },
+        set: function(key, value) {
+        },
+        zadd: function(key, score, revisionKey) {
+          recentUploads.push(revisionKey);
+        },
+        zrem: function(val,revision) {
+          var i = recentUploads.indexOf(revision)
+          recentUploads.splice(i,1);
+        },
+        zrange: function() {
+          return recentUploads.slice(0,2);
+        },
+        del: function(key) {
+        }
+      })));
+
+      var promise = redis.upload('key', '12', 'value');
+      return assert.isFulfilled(promise)
+        .then(function() {
+          assert.equal(recentUploads.length, 11);
+          assert.deepEqual(recentUploads, finalUploads);
         });
     });
 
@@ -196,8 +232,6 @@ describe('redis', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         zrevrange: function() {
           return recentRevisions;
-        },
-        get: function() {
         }
       })));
 
