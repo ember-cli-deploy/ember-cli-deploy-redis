@@ -61,61 +61,47 @@ describe('redis', function() {
     });
 
     it('updates the list of recent uploads once upload is successful', function() {
-      var recentUploads = [];
-
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
           return Promise.resolve(null);
-        },
-        zadd: function(key, score , tag) {
-          recentUploads.push(key + tag);
         }
       })));
 
       var promise = redis.upload('key', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
-          assert.equal(recentUploads.length, 1);
-          assert.equal(recentUploads[0], 'keydefault');
+          assert.equal(redis._client.recentRevisions.length, 1);
+          assert.equal(redis._client.recentRevisions[0], 'key:default');
         });
     });
 
     it('trims the list of recent uploads and removes the index key', function() {
-      var recentUploads = ['1','2','3','4','5','6','7','8','9','10','11'];
-      var finalUploads  = ['3','4','5','6','7','8','9','10','11','12'];
+      var finalUploads = ['3','4','5','6','7','8','9','10','11','key:12'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
           return Promise.resolve(null);
         },
-        set: function(key, value) {
-        },
-        zadd: function(key, score, revisionKey) {
-          recentUploads.push(revisionKey);
-        },
-        zrem: function(val,revision) {
-          var i = recentUploads.indexOf(revision)
-          recentUploads.splice(i,1);
-        },
-        zrange: function() {
-          return recentUploads.slice(0,2);
-        },
         del: function(key) {
           assert(key === 'key:1' || key === 'key:2');
+        },
+        zrange: function() {
+          return this.recentRevisions.slice(0,2);
         }
       })));
+
+      redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
       var promise = redis.upload('key', '12', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
-          assert.equal(recentUploads.length, 10);
-          assert.deepEqual(recentUploads, finalUploads);
+          assert.equal(redis._client.recentRevisions.length, 10);
+          assert.deepEqual(redis._client.recentRevisions, finalUploads);
         });
     });
 
     it('trims the list of recent uploads but leaves the active one', function() {
-      var recentUploads = ['1','2','3','4','5','6','7','8','9','10','11'];
-      var finalUploads  = ['1','3','4','5','6','7','8','9','10','11','12'];
+      var finalUploads = ['1','3','4','5','6','7','8','9','10','11','key:12'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
@@ -124,27 +110,18 @@ describe('redis', function() {
           }
           return Promise.resolve(null);
         },
-        set: function(key, value) {
-        },
-        zadd: function(key, score, revisionKey) {
-          recentUploads.push(revisionKey);
-        },
-        zrem: function(val,revision) {
-          var i = recentUploads.indexOf(revision)
-          recentUploads.splice(i,1);
-        },
         zrange: function() {
-          return recentUploads.slice(0,2);
-        },
-        del: function(key) {
+          return this.recentRevisions.slice(0,2);
         }
       })));
+
+      redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
       var promise = redis.upload('key', '12', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
-          assert.equal(recentUploads.length, 11);
-          assert.deepEqual(recentUploads, finalUploads);
+          assert.equal(redis._client.recentRevisions.length, 11);
+          assert.deepEqual(redis._client.recentRevisions, finalUploads);
         });
     });
 
@@ -186,13 +163,13 @@ describe('redis', function() {
 
   describe('#activate', function() {
     it('rejects if the revisionKey doesn\t exist in list of uploaded revisions', function() {
-      var recentRevisions = ['a', 'b', 'c'];
-
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         zrevrange: function() {
-          return recentRevisions;
+          return this.recentRevisions;
         }
       })));
+
+      redis._client.recentRevisions = ['a', 'b', 'c'];
 
       var promise = redis.activate('key-prefix', 'revision-key');
       return assert.isRejected(promise)
@@ -202,19 +179,16 @@ describe('redis', function() {
     });
 
     it('resolves and sets the current revision to the revision key provided', function() {
-      var recentRevisions = ['a', 'b', 'c'];
       var redisKey, redisValue;
 
-
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        zrevrange: function() {
-          return recentRevisions;
-        },
         set: function(key, value) {
           redisKey = key;
           redisValue = value;
         }
       })));
+
+      redis._client.recentRevisions = ['a', 'b', 'c'];
 
       var promise = redis.activate('key-prefix', 'c');
       return assert.isFulfilled(promise)
@@ -227,13 +201,10 @@ describe('redis', function() {
 
   describe('#fetchRevisions', function() {
     it('lists the last existing revisions', function() {
-      var recentRevisions = ['a', 'b', 'c'];
-
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        zrevrange: function() {
-          return recentRevisions;
-        }
       })));
+
+      redis._client.recentRevisions = ['a', 'b', 'c'];
 
       var promise = redis.fetchRevisions('key-prefix');
       return assert.isFulfilled(promise)
@@ -257,17 +228,15 @@ describe('redis', function() {
     });
 
     it('lists revisions and marks the active one', function() {
-      var recentRevisions = ['a', 'b'];
       var currentRevision = 'b';
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
-        zrevrange: function() {
-          return recentRevisions;
-        },
         get: function() {
           return currentRevision;
         }
       })));
+
+      redis._client.recentRevisions = ['a', 'b'];
 
       var promise = redis.fetchRevisions('key-prefix');
       return assert.isFulfilled(promise)
