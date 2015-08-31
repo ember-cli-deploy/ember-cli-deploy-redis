@@ -109,7 +109,9 @@ describe('redis plugin', function() {
           config: {
             redis: config
           },
-          revisionKey: 'something-else'
+          revisionData: {
+            revisionKey: 'something-else'
+          }
         };
 
         plugin.beforeHook(context);
@@ -135,7 +137,9 @@ describe('redis plugin', function() {
           commandOptions: {
             revision: 'abcd'
           },
-          revisionKey: 'something-else'
+          revisionData: {
+            revisionKey: 'something-else'
+          }
         };
 
         plugin.beforeHook(context);
@@ -160,7 +164,9 @@ describe('redis plugin', function() {
             redis: config
           },
           commandOptions: { },
-          revisionKey: 'something-else'
+          revisionData: {
+            revisionKey: 'something-else'
+          }
         };
 
         plugin.beforeHook(context);
@@ -380,7 +386,7 @@ describe('redis plugin', function() {
       return assert.isFulfilled(plugin.activate(context))
         .then(function(result) {
           assert.ok(activateCalled);
-          assert.equal(result.activatedRevisionKey, '123abc');
+          assert.equal(result.revisionData.activatedRevisionKey, '123abc');
         });
     });
 
@@ -438,12 +444,11 @@ describe('redis plugin', function() {
         },
         project: stubProject,
         config: {
-          redis: {
-            revisionKey: '123abc',
-            activatedRevisionKey: null
-          }
+          redis: { }
         },
-        revisionKey: '123abc',
+        revisionData: {
+          revisionKey: '123abc',
+        }
       };
       plugin.beforeHook(context);
       plugin.configure(context);
