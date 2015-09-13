@@ -29,14 +29,16 @@ module.exports = {
           return context.project.name() + ':index';
         },
         didDeployMessage: function(context){
-          if (context.revisionKey && !context.activatedRevisionKey) {
-            return "Deployed but did not activate revision " + context.revisionKey + ". "
+          var revisionKey = context.revisionData && context.revisionData.revisionKey;
+          var activatedRevisionKey = context.revisionData && context.revisionData.activatedRevisionKey;
+          if (revisionKey && !activatedRevisionKey) {
+            return "Deployed but did not activate revision " + revisionKey + ". "
                  + "To activate, run: "
-                 + "ember deploy:activate " + context.deployTarget + " --revision=" + context.revisionKey + "\n";
+                 + "ember deploy:activate " + context.deployTarget + " --revision=" + revisionKey + "\n";
           }
         },
         revisionKey: function(context) {
-          return context.commandOptions.revision || context.revisionKey;
+          return context.commandOptions.revision || (context.revisionData && context.revisionData.revisionKey);
         },
         redisDeployClient: function(context) {
           var redisOptions = this.pluginConfig;
@@ -76,15 +78,17 @@ module.exports = {
 
       activate: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
-        var revisionKey = this.readConfig('revisionKey');
-        var keyPrefix = this.readConfig('keyPrefix');
+        var revisionKey       = this.readConfig('revisionKey');
+        var keyPrefix         = this.readConfig('keyPrefix');
 
         this.log('Activating revision `' + revisionKey + '`');
         return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
             return {
-              activatedRevisionKey: revisionKey
+              revisionData: {
+                activatedRevisionKey: revisionKey
+              }
             };
           })
           .catch(this._errorMessage.bind(this));

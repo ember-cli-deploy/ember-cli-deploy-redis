@@ -113,9 +113,9 @@ The prefix to be used for the Redis key under which file will be uploaded to Red
 
 ### revisionKey
 
-The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revisionKey` passed in from the command line or the `revisionKey` property from the deployment context.
+The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revisionKey` passed in from the command line or the `revisionData.revisionKey` property from the deployment context.
 
-*Default:* `context.commandLineArgs.revisionKey || context.revisionKey`
+*Default:* `context.commandLineArgs.revisionKey || context.revisionData.revisionKey`
 
 ### allowOverwrite
 
@@ -131,15 +131,15 @@ The Redis client to be used to upload files to the Redis store. By default this 
 
 ### didDeployMessage
 
-A message that will be displayed after the file has been successfully uploaded to Redis. By default this message will only display if the revision for `revisionKey` of the deployment context has been activated.
+A message that will be displayed after the file has been successfully uploaded to Redis. By default this message will only display if the revision for `revisionData.revisionKey` of the deployment context has been activated.
 
 *Default:* 
 
 ```javascript
-if (context.revisionKey && !context.activatedRevisionKey) {
-  return "Deployed but did not activate revision " + context.revisionKey + ". "
+if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionKey) {
+  return "Deployed but did not activate revision " + context.revisionData.revisionKey + ". "
        + "To activate, run: "
-       + "ember deploy:activate " + context.revisionKey + " --environment=" + context.deployEnvironment + "\n";
+       + "ember deploy:activate " + context.revisionData.revisionKey + " --environment=" + context.deployEnvironment + "\n";
 }
 ```
 
@@ -213,7 +213,7 @@ The following properties are expected to be present on the deployment `context` 
 
 - `distDir`                     (provided by [ember-cli-deploy-build][4])
 - `project.name()`              (provided by [ember-cli-deploy][5])
-- `revisionKey`                 (provided by [ember-cli-deploy-revision-key][6])
+- `revisionData.revisionKey`    (provided by [ember-cli-deploy-revision-data][6])
 - `commandLineArgs.revisionKey` (provided by [ember-cli-deploy][5])
 - `deployEnvironment`           (provided by [ember-cli-deploy][5])
 
@@ -226,4 +226,4 @@ The following properties are expected to be present on the deployment `context` 
 [3]: https://www.npmjs.com/package/redis "Redis Client"
 [4]: https://github.com/zapnito/ember-cli-deploy-build "ember-cli-deploy-build"
 [5]: https://github.com/ember-cli/ember-cli-deploy "ember-cli-deploy"
-[6]: https://github.com/zapnito/ember-cli-deploy-revision-key "ember-cli-deploy-revision-key"
+[6]: https://github.com/zapnito/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
