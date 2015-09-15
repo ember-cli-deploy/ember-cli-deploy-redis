@@ -133,7 +133,7 @@ The Redis client to be used to upload files to the Redis store. By default this 
 
 A message that will be displayed after the file has been successfully uploaded to Redis. By default this message will only display if the revision for `revisionData.revisionKey` of the deployment context has been activated.
 
-*Default:* 
+*Default:*
 
 ```javascript
 if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionKey) {
@@ -181,9 +181,10 @@ So, if the `keyPrefix` was configured to be `my-app:index` and there had been 3 
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
-2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
-3) my-app:index:f769d3afb67bd20ccdb083549048c86c
+1) my-app:index
+2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+4) my-app:index:f769d3afb67bd20ccdb083549048c86c
 ```
 
 Activating a revison would add a new entry to Redis pointing to the currently active revision:
@@ -194,10 +195,11 @@ $ ember deploy:activate f769d3afb67bd20ccdb083549048c86c
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
-2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
-3) my-app:index:f769d3afb67bd20ccdb083549048c86c
-4) my-app:index:current
+1) my-app:index
+2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+4) my-app:index:f769d3afb67bd20ccdb083549048c86c
+5) my-app:index:current
 
 127.0.0.1:6379> GET my-app:index:current
 "f769d3afb67bd20ccdb083549048c86c"
