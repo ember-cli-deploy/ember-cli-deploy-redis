@@ -11,10 +11,11 @@ module.exports = CoreObject.extend({
   set: function() { },
   del: function() { },
   zadd: function(key, score , tag) {
-    this.recentRevisions.push(key + ':' + tag);
+    var prefix = key.replace(':revisions','');
+    this.recentRevisions.push(prefix + ':' + tag);
   },
-  zrem: function(val,revision) {
-    var i = this.recentRevisions.indexOf(revision)
+  zrem: function(key, revision) {
+    var i = this.recentRevisions.indexOf(revision);
     this.recentRevisions.splice(i,1);
   },
   zrange: function() {

@@ -32,6 +32,12 @@ describe('redis', function() {
         },
         set: function(key, value) {
           fileUploaded = true;
+        },
+        zadd: function(key, value) {
+          assert(key.match(/:revisions$/));
+        },
+        zrange: function(key, value) {
+          assert(key.match(/:revisions$/));
         }
       })));
 
@@ -87,6 +93,10 @@ describe('redis', function() {
         },
         zrange: function() {
           return this.recentRevisions.slice(0,2);
+        },
+        zrem: function(key) {
+          assert(key.match(/:revisions$/));
+          return this._super.apply(this, arguments);
         }
       })));
 
@@ -233,6 +243,10 @@ describe('redis', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function() {
           return currentRevision;
+        },
+        zrevrange: function(key) {
+          assert(key.match(/:revisions$/));
+          return this._super.apply(this, arguments);
         }
       })));
 
