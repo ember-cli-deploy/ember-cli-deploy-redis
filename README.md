@@ -219,6 +219,52 @@ The following properties are expected to be present on the deployment `context` 
 - `commandLineArgs.revisionKey` (provided by [ember-cli-deploy][5])
 - `deployEnvironment`           (provided by [ember-cli-deploy][5])
 
+## What if my Redis server isn't publicly accessible?
+
+Not to worry! Just install the handy-dandy `ember-cli-deploy-ssh-tunnel` plugin:
+
+```
+ember install ember-cli-deploy-ssh-tunnel
+```
+
+Add set up your `deploy.js` similar to the following:
+
+```js
+  'redis': {
+    host: "localhost",
+    port:  49156
+  },
+  'ssh-tunnel': {
+    username:       "your-ssh-username",
+    host:           "remote-redis-host"
+    srcPort:        49156
+  }
+```
+
+_(NB: by default `ssh-tunnel` assigns a random port for srcPort, but we need that
+  to be the same for our `redis` config, so I've just hardcoded it above)_
+
+### What if my Redis server is only accessible *from* my remote server?
+
+Sometimes you need to SSH into a server (a "bastion" server) and then run
+`redis-cli` or similar from there. This is really common if you're using
+Elasticache on AWS, for instance. We've got you covered there too - just
+set your SSH tunnel host to the bastion server, and tell the tunnel to use
+your Redis host as the destination host, like so:
+
+```js
+  'redis': {
+    host: "localhost",
+    port:  49156
+  },
+  'ssh-tunnel': {
+    username:       "your-ssh-username",
+    host:           "remote-redis-host"
+    srcPort:        49156,
+    dstHost:        "location-of-your-elasticache-node-or-remote-redis"
+  }
+```
+
 ## Running Tests
 
 - `npm test`
