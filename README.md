@@ -272,6 +272,6 @@ your Redis host as the destination host, like so:
 [1]: https://github.com/lukemelia/ember-cli-deploy-lightning-pack "ember-cli-deploy-lightning-pack"
 [2]: http://ember-cli.github.io/ember-cli-deploy/plugins "Plugin Documentation"
 [3]: https://www.npmjs.com/package/redis "Redis Client"
-[4]: https://github.com/zapnito/ember-cli-deploy-build "ember-cli-deploy-build"
+[4]: https://github.com/ember-cli-deploy/ember-cli-deploy-build "ember-cli-deploy-build"
 [5]: https://github.com/ember-cli/ember-cli-deploy "ember-cli-deploy"
-[6]: https://github.com/zapnito/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
+[6]: https://github.com/ember-cli-deploy/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
