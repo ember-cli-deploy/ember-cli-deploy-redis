@@ -209,16 +209,6 @@ $ redis-cli
 
 Activation occurs during the `activate` hook of the pipeline. By default, activation is turned off and must be explicitly enabled by one of the 3 methods above.
 
-## Prerequisites
-
-The following properties are expected to be present on the deployment `context` object:
-
-- `distDir`                     (provided by [ember-cli-deploy-build][4])
-- `project.name()`              (provided by [ember-cli-deploy][5])
-- `revisionData.revisionKey`    (provided by [ember-cli-deploy-revision-data][6])
-- `commandLineArgs.revisionKey` (provided by [ember-cli-deploy][5])
-- `deployEnvironment`           (provided by [ember-cli-deploy][5])
-
 ## What if my Redis server isn't publicly accessible?
 
 Not to worry! Just install the handy-dandy `ember-cli-deploy-ssh-tunnel` plugin:
@@ -264,6 +254,16 @@ your Redis host as the destination host, like so:
     dstHost:        "location-of-your-elasticache-node-or-remote-redis"
   }
 ```
+
+## Prerequisites
+
+The following properties are expected to be present on the deployment `context` object:
+
+- `distDir`                     (provided by [ember-cli-deploy-build][4])
+- `project.name()`              (provided by [ember-cli-deploy][5])
+- `revisionData.revisionKey`    (provided by [ember-cli-deploy-revision-data][6])
+- `commandLineArgs.revisionKey` (provided by [ember-cli-deploy][5])
+- `deployEnvironment`           (provided by [ember-cli-deploy][5])
 
 ## Running Tests
 
