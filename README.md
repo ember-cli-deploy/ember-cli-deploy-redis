@@ -133,7 +133,7 @@ The Redis client to be used to upload files to the Redis store. By default this 
 
 A message that will be displayed after the file has been successfully uploaded to Redis. By default this message will only display if the revision for `revisionData.revisionKey` of the deployment context has been activated.
 
-*Default:* 
+*Default:*
 
 ```javascript
 if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionKey) {
@@ -181,9 +181,10 @@ So, if the `keyPrefix` was configured to be `my-app:index` and there had been 3 
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
-2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
-3) my-app:index:f769d3afb67bd20ccdb083549048c86c
+1) my-app:index
+2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+4) my-app:index:f769d3afb67bd20ccdb083549048c86c
 ```
 
 Activating a revison would add a new entry to Redis pointing to the currently active revision:
@@ -194,10 +195,11 @@ $ ember deploy:activate f769d3afb67bd20ccdb083549048c86c
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
-2) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
-3) my-app:index:f769d3afb67bd20ccdb083549048c86c
-4) my-app:index:current
+1) my-app:index
+2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
+3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
+4) my-app:index:f769d3afb67bd20ccdb083549048c86c
+5) my-app:index:current
 
 127.0.0.1:6379> GET my-app:index:current
 "f769d3afb67bd20ccdb083549048c86c"
@@ -206,6 +208,52 @@ $ redis-cli
 ### When does activation occur?
 
 Activation occurs during the `activate` hook of the pipeline. By default, activation is turned off and must be explicitly enabled by one of the 3 methods above.
+
+## What if my Redis server isn't publicly accessible?
+
+Not to worry! Just install the handy-dandy `ember-cli-deploy-ssh-tunnel` plugin:
+
+```
+ember install ember-cli-deploy-ssh-tunnel
+```
+
+Add set up your `deploy.js` similar to the following:
+
+```js
+  'redis': {
+    host: "localhost",
+    port:  49156
+  },
+  'ssh-tunnel': {
+    username:       "your-ssh-username",
+    host:           "remote-redis-host"
+    srcPort:        49156
+  }
+```
+
+_(NB: by default `ssh-tunnel` assigns a random port for srcPort, but we need that
+  to be the same for our `redis` config, so I've just hardcoded it above)_
+
+### What if my Redis server is only accessible *from* my remote server?
+
+Sometimes you need to SSH into a server (a "bastion" server) and then run
+`redis-cli` or similar from there. This is really common if you're using
+Elasticache on AWS, for instance. We've got you covered there too - just
+set your SSH tunnel host to the bastion server, and tell the tunnel to use
+your Redis host as the destination host, like so:
+
+```js
+  'redis': {
+    host: "localhost",
+    port:  49156
+  },
+  'ssh-tunnel': {
+    username:       "your-ssh-username",
+    host:           "remote-redis-host"
+    srcPort:        49156,
+    dstHost:        "location-of-your-elasticache-node-or-remote-redis"
+  }
+```
 
 ## Prerequisites
 
