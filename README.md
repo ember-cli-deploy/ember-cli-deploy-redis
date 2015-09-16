@@ -181,7 +181,7 @@ So, if the `keyPrefix` was configured to be `my-app:index` and there had been 3 
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index
+1) my-app:index:revisions
 2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
 3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
 4) my-app:index:f769d3afb67bd20ccdb083549048c86c
@@ -195,7 +195,7 @@ $ ember deploy:activate f769d3afb67bd20ccdb083549048c86c
 $ redis-cli
 
 127.0.0.1:6379> KEYS *
-1) my-app:index
+1) my-app:index:revisions
 2) my-app:index:9ab2021411f0cbc5ebd5ef8ddcd85cef
 3) my-app:index:499f5ac793551296aaf7f1ec74b2ca79
 4) my-app:index:f769d3afb67bd20ccdb083549048c86c
