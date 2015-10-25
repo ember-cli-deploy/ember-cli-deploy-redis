@@ -48,14 +48,14 @@ module.exports = {
         }
       },
       configure: function(/* context */) {
-        this.log('validating config');
+        this.log('validating config', { verbose: true });
 
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
         ['filePattern', 'distDir', 'keyPrefix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
 
-        this.log('config ok');
+        this.log('config ok', { verbose: true });
       },
 
       upload: function(/* context */) {
@@ -66,7 +66,7 @@ module.exports = {
         var keyPrefix         = this.readConfig('keyPrefix');
         var filePath          = path.join(distDir, filePattern);
 
-        this.log('Uploading `' + filePath + '`');
+        this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
           .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
           .then(this._uploadSuccessMessage.bind(this))
@@ -81,7 +81,7 @@ module.exports = {
         var revisionKey       = this.readConfig('revisionKey');
         var keyPrefix         = this.readConfig('keyPrefix');
 
-        this.log('Activating revision `' + revisionKey + '`');
+        this.log('Activating revision `' + revisionKey + '`', { verbose: true });
         return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
@@ -121,7 +121,7 @@ module.exports = {
       },
 
       _uploadSuccessMessage: function(key) {
-        this.log('Uploaded with key `' + key + '`');
+        this.log('Uploaded with key `' + key + '`', { verbose: true });
         return Promise.resolve(key);
       },
 
