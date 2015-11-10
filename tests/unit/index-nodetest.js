@@ -199,13 +199,14 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 8);
+        assert.equal(messages.length, 9);
       });
       it('adds default config to the config object', function() {
         plugin.configure(context);
         assert.isDefined(config.redis.host);
         assert.isDefined(config.redis.port);
         assert.isDefined(config.redis.keyPrefix);
+        assert.isDefined(config.redis.activationSuffix);
         assert.isDefined(config.redis.didDeployMessage);
       });
     });
@@ -228,7 +229,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, revisionKey, didDeployMessage, and connection info', function() {
+      it('warns about missing optional filePattern, distDir, activationSuffix, revisionKey, didDeployMessage, and connection info', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -237,15 +238,56 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 7);
+        assert.equal(messages.length, 8);
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
         assert.isDefined(config.redis.host);
         assert.isDefined(config.redis.port);
         assert.isDefined(config.redis.filePattern);
+        assert.isDefined(config.redis.activationSuffix);
         assert.isDefined(config.redis.didDeployMessage);
         assert.equal(config.redis.keyPrefix, 'proj:home');
+      });
+    });
+
+    describe('with an activationSuffix provided', function () {
+      var config, plugin, context;
+      beforeEach(function() {
+        config = {
+          redis: {
+            activationSuffix: 'special:suffix'
+          }
+        };
+        plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+        context = {
+          ui: mockUi,
+          project: stubProject,
+          config: config
+        };
+        plugin.beforeHook(context);
+      });
+      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey, didDeployMessage, and connection info', function() {
+        plugin.configure(context);
+        var messages = mockUi.messages.reduce(function(previous, current) {
+          if (/- Missing config:\s.*, using default:\s/.test(current)) {
+            previous.push(current);
+          }
+
+          return previous;
+        }, []);
+        assert.equal(messages.length, 8)
+      });
+      it('does not add default config to the config object', function() {
+        plugin.configure(context);
+        assert.isDefined(config.redis.host);
+        assert.isDefined(config.redis.port);
+        assert.isDefined(config.redis.filePattern);
+        assert.isDefined(config.redis.keyPrefix);
+        assert.isDefined(config.redis.didDeployMessage);
+        assert.equal(config.redis.activationSuffix, 'special:suffix');
       });
     });
 
@@ -267,7 +309,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey and didDeployMessage only', function() {
+      it('warns about missing optional filePattern, distDir, keyPrefix, activationSuffix, revisionKey, and didDeployMessage only', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -276,7 +318,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 6);
+        assert.equal(messages.length, 7);
       });
 
       it('does not add default config to the config object', function() {

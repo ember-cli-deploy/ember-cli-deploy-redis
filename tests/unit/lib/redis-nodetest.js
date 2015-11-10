@@ -200,7 +200,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['a', 'b', 'c'];
 
-      var promise = redis.activate('key-prefix', 'c');
+      var promise = redis.activate('key-prefix', 'c', 'current');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redisKey, 'key-prefix:current');
