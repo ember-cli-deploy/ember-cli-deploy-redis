@@ -111,6 +111,12 @@ The prefix to be used for the Redis key under which file will be uploaded to Red
 
 *Default:* `context.project.name() + ':index'`
 
+### activationSuffix
+
+The suffix to be used for the Redis key under which the activated revision will be stored in Redis. By default this option will be `"current"`. This makes the default activated revision key in Redis looks like: `project.name() + ':index:current'`
+
+*Default:* `current`
+
 ### revisionKey
 
 The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revisionKey` passed in from the command line or the `revisionData.revisionKey` property from the deployment context.

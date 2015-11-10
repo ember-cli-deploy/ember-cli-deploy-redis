@@ -172,7 +172,7 @@ describe('redis', function() {
   });
 
   describe('#activate', function() {
-    it('rejects if the revisionKey doesn\t exist in list of uploaded revisions', function() {
+    it('rejects if the revisionKey doesn\'t exist in list of uploaded revisions', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         zrevrange: function() {
           return this.recentRevisions;
@@ -200,7 +200,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['a', 'b', 'c'];
 
-      var promise = redis.activate('key-prefix', 'c');
+      var promise = redis.activate('key-prefix', 'c', 'current');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redisKey, 'key-prefix:current');
