@@ -28,6 +28,7 @@ module.exports = {
         keyPrefix: function(context){
           return context.project.name() + ':index';
         },
+        activationSuffix: 'current',
         didDeployMessage: function(context){
           var revisionKey = context.revisionData && context.revisionData.revisionKey;
           var activatedRevisionKey = context.revisionData && context.revisionData.activatedRevisionKey;
@@ -53,7 +54,7 @@ module.exports = {
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
-        ['filePattern', 'distDir', 'keyPrefix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
+        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok', { verbose: true });
       },
@@ -80,9 +81,10 @@ module.exports = {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
         var keyPrefix         = this.readConfig('keyPrefix');
+        var activationSuffix  = this.readConfig('activationSuffix');
 
         this.log('Activating revision `' + revisionKey + '`', { verbose: true });
-        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey))
+        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
             return {
