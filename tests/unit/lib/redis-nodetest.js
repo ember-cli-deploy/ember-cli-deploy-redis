@@ -19,7 +19,7 @@ describe('redis', function() {
     it('rejects if the key already exists in redis', function() {
       var redis = new Redis({}, new FakeRedis());
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', 'suffix', 'value');
       return assert.isRejected(promise, /^Value already exists for key: key:default$/);
     });
 
@@ -41,7 +41,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', 'suffix', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.ok(fileUploaded);
@@ -59,7 +59,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', 'suffix', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.ok(fileUploaded);
@@ -73,7 +73,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', 'suffix', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 1);
@@ -102,7 +102,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
-      var promise = redis.upload('key', '12', 'value');
+      var promise = redis.upload('key', 'suffix', '12', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 10);
@@ -115,7 +115,7 @@ describe('redis', function() {
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
-          if (key == 'key:current') {
+          if (key == 'key:suffix') {
             return Promise.resolve('1');
           }
           return Promise.resolve(null);
@@ -127,7 +127,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
-      var promise = redis.upload('key', '12', 'value');
+      var promise = redis.upload('key', 'suffix', '12', 'value');
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 11);
@@ -146,7 +146,7 @@ describe('redis', function() {
           }
         })));
 
-        var promise = redis.upload('key', 'value');
+        var promise = redis.upload('key', 'suffix', 'value');
         return assert.isRejected(promise)
           .then(function() {
             assert.equal(redisKey, 'key:default');
@@ -162,7 +162,7 @@ describe('redis', function() {
             }
         })));
 
-        var promise = redis.upload('key', 'tag', 'value');
+        var promise = redis.upload('key', 'suffix', 'tag', 'value');
         return assert.isRejected(promise)
           .then(function() {
             assert.equal(redisKey, 'key:tag');
@@ -181,7 +181,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['a', 'b', 'c'];
 
-      var promise = redis.activate('key-prefix', 'revision-key');
+      var promise = redis.activate('key-prefix', 'revision-key', 'key-suffix');
       return assert.isRejected(promise)
         .then(function(error) {
           assert.equal(error, '`revision-key` is not a valid revision key');
@@ -200,10 +200,10 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['a', 'b', 'c'];
 
-      var promise = redis.activate('key-prefix', 'c', 'current');
+      var promise = redis.activate('key-prefix', 'c', 'key-suffix');
       return assert.isFulfilled(promise)
         .then(function() {
-          assert.equal(redisKey, 'key-prefix:current');
+          assert.equal(redisKey, 'key-prefix:key-suffix');
           assert.equal(redisValue, 'c');
         });
     });
