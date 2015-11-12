@@ -245,6 +245,39 @@ describe('redis', function() {
           assert.equal(redisValue, 'c');
         });
     });
+
+    it('copies revision to the activeContentSuffix', function() {
+      var redisKey, redisValue;
+
+      var redisClient = new FakeRedis(FakeClient.extend({  
+        _db: {
+          "key-prefix:a": "first revision content",
+          "key-prefix:b": "second revision content",
+          "key-prefix:c": "third revision content" 
+        },
+
+        get: function(key) {
+          return Promise.resolve(this._db[key]);
+        },
+        set: function(key, value) {
+          this._db[key] = value;
+          return Promise.resolve(value);
+        },
+      }));
+
+      var redis = new Redis({}, redisClient);
+
+      redis._client.recentRevisions = ['a', 'b', 'c'];
+
+      var activate = redis.activate('key-prefix', 'c', 'current-id', 'current-content').then(function() {
+        return redis._client.get('key-prefix:current-content');
+      });
+
+      return assert.isFulfilled(activate)
+        .then(function(result) {
+          assert.equal(result, "third revision content");
+        });
+    });
   });
 
   describe('#fetchRevisions', function() {
