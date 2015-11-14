@@ -30,7 +30,7 @@ $ ember install ember-cli-deploy-redis
 - Place the following configuration into `config/deploy.js`
 
 ```javascript
-ENV.redis {
+ENV.redis = {
   host: '<your-redis-host>',
   port: <your-redis-port>,
   password: '<your-redis-password>'
@@ -172,7 +172,7 @@ $ ember deploy:activate <revision-key>
 - Setting the `activateOnDeploy` flag in `deploy.js`
 
 ```javascript
-ENV.pipeline {
+ENV.pipeline = {
   activateOnDeploy: true
 }
 ```
