@@ -379,7 +379,7 @@ describe('redis plugin', function() {
             revisionKey: '123abc',
             redisDeployClient: function(context) {
               return {
-                upload: function(keyPrefix, revisionKey) {
+                upload: function(keyPrefix, activationSuffix, revisionKey) {
                   return Promise.resolve(keyPrefix + ':' + revisionKey);
                 }
               };

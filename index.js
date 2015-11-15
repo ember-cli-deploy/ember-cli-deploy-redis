@@ -65,11 +65,12 @@ module.exports = {
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
+        var activationSuffix  = this.readConfig('activationSuffix');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
+          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, activationSuffix, revisionKey))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
             return { redisKey: key };
@@ -106,9 +107,10 @@ module.exports = {
       fetchRevisions: function(context) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var keyPrefix = this.readConfig('keyPrefix');
+        var activationSuffix = this.readConfig('activationSuffix');
 
         this.log('Listing revisions for key: `' + keyPrefix + '`');
-        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix, activationSuffix))
           .then(function(revisions){
             return { revisions: revisions };
           })
