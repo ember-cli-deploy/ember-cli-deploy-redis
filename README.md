@@ -149,6 +149,12 @@ if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionK
 }
 ```
 
+### maxRecentUploads
+
+The maximum number of recent revisions to keep in Redis.
+
+*Default:* `10`
+
 ## Activation
 
 As well as uploading a file to Redis, *ember-cli-deploy-redis* has the ability to mark a revision of a deployed file as `current`. This is most commonly used in the [lightning method of deployment][1] whereby an index.html file is pushed to Redis and then served to the user by a web server. The web server could be configured to return any existing revision of the index.html file as requested by a query parameter. However, the revision marked as the currently `active` revision would be returned if no query paramter is present. For more detailed information on this method of deployment please refer to the [ember-cli-deploy-lightning-pack README][1].

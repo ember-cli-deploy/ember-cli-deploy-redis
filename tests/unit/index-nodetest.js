@@ -199,7 +199,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 9);
+        assert.equal(messages.length, 10);
       });
       it('adds default config to the config object', function() {
         plugin.configure(context);
@@ -229,7 +229,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, activationSuffix, revisionKey, didDeployMessage, and connection info', function() {
+      it('warns about missing optional filePattern, distDir, activationSuffix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -238,7 +238,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 8);
+        assert.equal(messages.length, 9);
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -269,7 +269,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey, didDeployMessage, and connection info', function() {
+      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -278,7 +278,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 8)
+        assert.equal(messages.length, 9)
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -309,7 +309,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, keyPrefix, activationSuffix, revisionKey, and didDeployMessage only', function() {
+      it('warns about missing optional filePattern, distDir, keyPrefix, activationSuffix, revisionKey, maxNumberOfRecentUploads, and didDeployMessage only', function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -318,7 +318,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 7);
+        assert.equal(messages.length, 8);
       });
 
       it('does not add default config to the config object', function() {

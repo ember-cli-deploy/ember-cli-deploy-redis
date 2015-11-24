@@ -22,6 +22,7 @@ module.exports = {
         host: 'localhost',
         port: 6379,
         filePattern: 'index.html',
+        maxRecentUploads: 10,
         distDir: function(context) {
           return context.distDir;
         },
@@ -54,7 +55,7 @@ module.exports = {
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
-        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient'].forEach(this.applyDefaultConfigProperty.bind(this));
+        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok', { verbose: true });
       },
@@ -65,6 +66,7 @@ module.exports = {
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
+        var maxRecentUploads  = this.readConfig('maxRecentUploads');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
