@@ -56,6 +56,7 @@ For detailed information on what plugin hooks are and how they work, please refe
 
 - `configure`
 - `upload`
+- `willActivate`
 - `activate`
 - `didDeploy`
 
