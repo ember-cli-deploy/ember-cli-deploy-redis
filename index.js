@@ -77,6 +77,19 @@ module.exports = {
           .catch(this._errorMessage.bind(this));
       },
 
+      willActivate: function(/* context */) {
+        var redisDeployClient = this.readConfig('redisDeployClient');
+        var keyPrefix         = this.readConfig('keyPrefix');
+
+        var revisionKey = redisDeployClient.activeRevision(keyPrefix);
+        
+        return {
+          revisionData: {
+            previousRevisionKey: revisionKey
+          }
+        };
+      },
+
       activate: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');

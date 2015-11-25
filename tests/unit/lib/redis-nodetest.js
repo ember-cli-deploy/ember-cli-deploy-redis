@@ -171,6 +171,21 @@ describe('redis', function() {
     });
   });
 
+  describe('#willActivate', function() {
+    it('sets the previous revision to the current revision', function() {
+      var currentRevision = 'q';
+
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function() {
+          return currentRevision;
+        }
+      })));
+
+      var result = redis.activeRevision('key-prefix');
+      assert.equal(result, 'q');
+    });
+  }),
+
   describe('#activate', function() {
     it('rejects if the revisionKey doesn\'t exist in list of uploaded revisions', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
