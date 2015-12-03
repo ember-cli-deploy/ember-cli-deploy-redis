@@ -2,7 +2,7 @@
 
 > An ember-cli-deploy plugin to upload index.html to a Redis store
 
-![](https://ember-cli-deploy.github.io/ember-cli-deploy-version-badges/plugins/ember-cli-deploy-redis.svg)
+[![](https://ember-cli-deploy.github.io/ember-cli-deploy-version-badges/plugins/ember-cli-deploy-redis.svg)](http://ember-cli-deploy.github.io/ember-cli-deploy-version-badges/)
 
 This plugin uploads a file, presumably index.html, to a specified Redis store.
 
