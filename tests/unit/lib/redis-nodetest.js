@@ -135,6 +135,29 @@ describe('redis', function() {
         });
     });
 
+    it('trims the list of recent uploads if maxRecentUploads exists', function() {
+      var finalUploads = ['2','3','4','5','key:6'];
+
+      var redis = new Redis({ maxRecentUploads: 5 }, new FakeRedis(FakeClient.extend({
+        get: function(/* key */) {
+          return Promise.resolve(null);
+        },
+        zrange: function(listKey, startIndex, stopIndex) {
+          var end = this.recentRevisions.length - (Math.abs(stopIndex) - 1);
+          return this.recentRevisions.slice(0, end);
+        }
+      })));
+
+      redis._client.recentRevisions = ['1','2','3','4','5'];
+
+      var promise = redis.upload('key', '6', 'value');
+      return assert.isFulfilled(promise)
+          .then(function() {
+            assert.equal(redis._client.recentRevisions.length, 5);
+            assert.deepEqual(redis._client.recentRevisions, finalUploads);
+          });
+    });
+
     describe('generating the redis key', function() {
       it('will use just the default tag if the tag is not provided', function() {
         var redisKey = null;
