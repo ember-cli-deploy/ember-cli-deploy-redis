@@ -20,7 +20,13 @@ module.exports = {
       name: options.name,
       defaultConfig: {
         host: 'localhost',
-        port: 6379,
+        port: function(context) {
+          if (context.tunnel && context.tunnel.srcPort) {
+            return context.tunnel.srcPort;
+          } else {
+            return 6379;
+          }
+        },
         filePattern: 'index.html',
         distDir: function(context) {
           return context.distDir;
@@ -43,6 +49,7 @@ module.exports = {
         },
         redisDeployClient: function(context) {
           var redisOptions = this.pluginConfig;
+          redisOptions.port = this.readConfig('port');
           var redisLib = context._redisLib;
 
           return new Redis(redisOptions, redisLib);

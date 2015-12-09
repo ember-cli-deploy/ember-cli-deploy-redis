@@ -72,7 +72,7 @@ The Redis host. If [url](#url) is defined, then this option is not needed.
 
 The Redis port. If [url](#url) is defined, then this option is not needed.
 
-*Default:* `6379`
+*Default:* `6379` or `context.tunnel.srcPort` if present (set by [ember-cli-deploy-ssh-tunnel][7])
 
 ### database
 
@@ -227,17 +227,12 @@ Add set up your `deploy.js` similar to the following:
 ```js
   'redis': {
     host: "localhost",
-    port:  49156
   },
   'ssh-tunnel': {
     username:       "your-ssh-username",
     host:           "remote-redis-host"
-    srcPort:        49156
   }
 ```
-
-_(NB: by default `ssh-tunnel` assigns a random port for srcPort, but we need that
-  to be the same for our `redis` config, so I've just hardcoded it above)_
 
 ### What if my Redis server is only accessible *from* my remote server?
 
@@ -250,12 +245,10 @@ your Redis host as the destination host, like so:
 ```js
   'redis': {
     host: "localhost",
-    port:  49156
   },
   'ssh-tunnel': {
     username:       "your-ssh-username",
     host:           "remote-redis-host"
-    srcPort:        49156,
     dstHost:        "location-of-your-elasticache-node-or-remote-redis"
   }
 ```
@@ -270,6 +263,10 @@ The following properties are expected to be present on the deployment `context` 
 - `commandLineArgs.revisionKey` (provided by [ember-cli-deploy][5])
 - `deployEnvironment`           (provided by [ember-cli-deploy][5])
 
+The following properties are used if present on the deployment `context` object:
+
+- `tunnel.srcPort`              (provided by [ember-cli-deploy-ssh-tunnel][7])
+
 ## Running Tests
 
 - `npm test`
@@ -280,3 +277,4 @@ The following properties are expected to be present on the deployment `context` 
 [4]: https://github.com/ember-cli-deploy/ember-cli-deploy-build "ember-cli-deploy-build"
 [5]: https://github.com/ember-cli/ember-cli-deploy "ember-cli-deploy"
 [6]: https://github.com/ember-cli-deploy/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
+[7]: https://github.com/ember-cli-deploy/ember-cli-deploy-ssh-tunnel "ember-cli-deploy-ssh-tunnel"

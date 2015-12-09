@@ -93,6 +93,78 @@ describe('redis plugin', function() {
       assert.equal(redisLib.createdClient.options.database, 4);
     });
 
+    describe('resolving port from the pipeline', function() {
+      it('uses the config data if it already exists', function() {
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var config = {
+          host: 'somehost',
+          port: 1234,
+        };
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: config
+          },
+          tunnel: {
+            srcPort: '2345'
+          }
+        };
+
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        assert.equal(plugin.readConfig('port'), '1234');
+      });
+
+      it('uses the context value if it exists and config doesn\'t', function() {
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var config = {
+          host: 'somehost',
+        };
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: config
+          },
+          tunnel: {
+            srcPort: '2345'
+          }
+        };
+
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        assert.equal(plugin.readConfig('port'), '2345');
+      });
+
+      it('uses the default port if config and context don\'t exist', function() {
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var config = {
+          host: 'somehost',
+        };
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: config
+          }
+        };
+
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        assert.equal(plugin.readConfig('port'), '6379');
+      });
+    });
+
     describe('resolving revisionKey from the pipeline', function() {
       it('uses the config data if it already exists', function() {
         var plugin = subject.createDeployPlugin({
