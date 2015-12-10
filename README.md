@@ -122,6 +122,24 @@ The unique revision number for the version of the file being uploaded to Redis. 
 
 *Default:* `context.commandLineArgs.revisionKey || context.revisionData.revisionKey`
 
+### activeContentSuffix
+
+The suffix to be used for the Redis key under which the activated revision content will be stored in Redis. By default this option will be `"current-content"`. This makes the default activated revision in Redis looks like: `project.name() + ':index:current-content'`
+
+This makes it possible to serve content completely from within NGINX using the [redis](https://www.nginx.com/resources/wiki/modules/redis/) module without doing a primary key lookup.
+
+```
+  server {
+    location / {
+      set $redis_key project-name:index:current-content;
+      redis_pass     name:6379;
+      default_type   text/html;
+    }
+  }
+```
+
+*Default:* `current-content`
+
 ### allowOverwrite
 
 A flag to specify whether the revision should be overwritten if it already exists in Redis.

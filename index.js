@@ -36,6 +36,7 @@ module.exports = {
           return context.project.name() + ':index';
         },
         activationSuffix: 'current',
+        activeContentSuffix: 'current-content',
         didDeployMessage: function(context){
           var revisionKey = context.revisionData && context.revisionData.revisionKey;
           var activatedRevisionKey = context.revisionData && context.revisionData.activatedRevisionKey;
@@ -62,7 +63,8 @@ module.exports = {
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
-        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads'].forEach(this.applyDefaultConfigProperty.bind(this));
+
+        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'activeContentSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok', { verbose: true });
       },
@@ -100,13 +102,14 @@ module.exports = {
       },
 
       activate: function(/* context */) {
-        var redisDeployClient = this.readConfig('redisDeployClient');
-        var revisionKey       = this.readConfig('revisionKey');
-        var keyPrefix         = this.readConfig('keyPrefix');
-        var activationSuffix  = this.readConfig('activationSuffix');
+        var redisDeployClient   = this.readConfig('redisDeployClient');
+        var revisionKey         = this.readConfig('revisionKey');
+        var keyPrefix           = this.readConfig('keyPrefix');
+        var activationSuffix    = this.readConfig('activationSuffix');
+        var activeContentSuffix = this.readConfig('activeContentSuffix');
 
         this.log('Activating revision `' + revisionKey + '`', { verbose: true });
-        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix))
+        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
             return {
