@@ -128,14 +128,29 @@ module.exports = {
         }
       },
 
-      fetchRevisions: function(context) {
+      fetchInitialRevisions: function(/* context */) {
+        var redisDeployClient = this.readConfig('redisDeployClient');
+        var keyPrefix = this.readConfig('keyPrefix');
+        this.log('Listing initial revisions for key: `' + keyPrefix + '`', { verbose: true });
+        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+          .then(function(revisions) {
+            return {
+              initialRevisions: revisions
+            };
+          })
+          .catch(this._errorMessage.bind(this));
+      },
+
+      fetchRevisions: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Listing revisions for key: `' + keyPrefix + '`');
         return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
-          .then(function(revisions){
-            return { revisions: revisions };
+          .then(function(revisions) {
+            return {
+              revisions: revisions
+            };
           })
           .catch(this._errorMessage.bind(this));
       },
