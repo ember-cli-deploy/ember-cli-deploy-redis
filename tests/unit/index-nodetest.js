@@ -575,6 +575,52 @@ describe('redis plugin', function() {
     });
   });
 
+  describe('fetchInitialRevisions hook', function() {
+    it('fills the initialRevisions variable on context', function() {
+      var plugin;
+      var context;
+
+      plugin = subject.createDeployPlugin({
+        name: 'redis'
+      });
+
+      context = {
+        ui: mockUi,
+        project: stubProject,
+        config: {
+          redis: {
+            keyPrefix: 'test-prefix',
+            filePattern: 'index.html',
+            distDir: 'tests',
+            revisionKey: '123abc',
+            redisDeployClient: function(context) {
+              return {
+                fetchRevisions: function(keyPrefix, revisionKey) {
+                  return Promise.resolve([{
+                    revision: 'a',
+                    active: false
+                  }]);
+                }
+              };
+            }
+          }
+        }
+      };
+      plugin.beforeHook(context);
+      plugin.configure(context);
+
+      return assert.isFulfilled(plugin.fetchInitialRevisions(context))
+        .then(function(result) {
+          assert.deepEqual(result, {
+            initialRevisions: [{
+              "active": false,
+              "revision": "a"
+            }]
+          });
+        });
+    });
+  });
+
   describe('fetchRevisions hook', function() {
     it('fills the revisions variable on context', function() {
       var plugin;
@@ -612,10 +658,10 @@ describe('redis plugin', function() {
       return assert.isFulfilled(plugin.fetchRevisions(context))
         .then(function(result) {
           assert.deepEqual(result, {
-            revisions: [{
-              "active": false,
-              "revision": "a"
-            }]
+              revisions: [{
+                "active": false,
+                "revision": "a"
+              }]
           });
         });
     });
