@@ -1,3 +1,11 @@
+## [0.2.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.2.0) (2016-02-06)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.1.1...0.2.0)
+
+- add fetchInitialRevisions [\#50](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/50) ([ghedamat](https://github.com/ghedamat))
+- update ember-cli-deploy-plugin to 0.2.1 [\#49](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/49) ([ghedamat](https://github.com/ghedamat))
+
+## [0.1.1]
+
 #### Community Contributions
 
 - [#1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/1) Deploy to Redis [@achambers](https://github.com/achambers)
