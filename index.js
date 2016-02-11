@@ -55,8 +55,17 @@ module.exports = {
           var redisLib = context._redisLib;
 
           return new Redis(redisOptions, redisLib);
-        }
+        },
+
+        didUpload: function(/* plugin, context, redis */){
+          return Promise.resolve();
+        },
+
+        didActivate: function(/* plugin, context, redis */){
+          return Promise.resolve();
+        },
       },
+
       configure: function(/* context */) {
         this.log('validating config', { verbose: true });
 
@@ -69,21 +78,25 @@ module.exports = {
         this.log('config ok', { verbose: true });
       },
 
-      upload: function(/* context */) {
+      upload: function(context) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
         var maxRecentUploads  = this.readConfig('maxRecentUploads');
+        var didUpload         = this.readConfig('didUpload');
         var filePath          = path.join(distDir, filePattern);
+        var self              = this;
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
           .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
-            return { redisKey: key };
+            return didUpload(self, context, redisDeployClient).then(function(){
+              return { redisKey: key };
+            });
           })
           .catch(this._errorMessage.bind(this));
       },
@@ -93,7 +106,7 @@ module.exports = {
         var keyPrefix         = this.readConfig('keyPrefix');
 
         var revisionKey = redisDeployClient.activeRevision(keyPrefix);
-        
+
         return {
           revisionData: {
             previousRevisionKey: revisionKey
@@ -101,22 +114,26 @@ module.exports = {
         };
       },
 
-      activate: function(/* context */) {
+      activate: function(context) {
         var redisDeployClient   = this.readConfig('redisDeployClient');
         var revisionKey         = this.readConfig('revisionKey');
         var keyPrefix           = this.readConfig('keyPrefix');
         var activationSuffix    = this.readConfig('activationSuffix');
         var activeContentSuffix = this.readConfig('activeContentSuffix');
+        var didActivate         = this.readConfig('didActivate');
+        var self                = this;
 
         this.log('Activating revision `' + revisionKey + '`', { verbose: true });
         return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
-            return {
-              revisionData: {
-                activatedRevisionKey: revisionKey
-              }
-            };
+            return didActivate(self, context, redisDeployClient).then(function(){
+              return {
+                revisionData: {
+                  activatedRevisionKey: revisionKey
+                }
+              };
+            });
           })
           .catch(this._errorMessage.bind(this));
       },
