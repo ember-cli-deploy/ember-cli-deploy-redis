@@ -1,3 +1,5 @@
+/* jshint node: true */
+/* jshint jasmine: true */
 'use strict';
 
 var FakeRedis = require('../../helpers/fake-redis-lib');
@@ -81,7 +83,7 @@ describe('redis', function() {
         });
     });
 
-    it('trims the list of recent uploads and removes the index key', function() {
+    it('trims the list of recent uploads and removes the index key and the revisionData', function() {
       var finalUploads = ['3','4','5','6','7','8','9','10','11','key:12'];
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
@@ -89,7 +91,7 @@ describe('redis', function() {
           return Promise.resolve(null);
         },
         del: function(key) {
-          assert(key === 'key:1' || key === 'key:2');
+          assert(key === 'key:1' || key === 'key:2' || key === 'key:revision-data:1' || key === 'key:revision-data:2');
         },
         zrange: function() {
           return this.recentRevisions.slice(0,2);
@@ -338,6 +340,39 @@ describe('redis', function() {
           ]
         );
       });
+    });
+
+    it('retrieves revisionData', function() {
+      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+        get: function() {
+        },
+        mget: function(keys) {
+          return Promise.resolve(['{"revisionKey":"a","timestamp":"2016-03-13T14:25:40.563Z","scm":{"sha":"9101968710f18a6720c48bf032fd82efd5743b7d","email":"mattia@mail.com","name":"Mattia Gheda","timestamp":"2015-12-22T12:44:48.000Z","branch":"master"}}']);
+        }
+      })));
+
+      redis._client.recentRevisions = ['a'];
+
+      var promise = redis.fetchRevisions('key-prefix');
+      return assert.isFulfilled(promise)
+        .then(function(result) {
+          assert.deepEqual(result, [
+            {
+              revision: 'a',
+              active: false,
+              revisionData: {
+                revisionKey: 'a',
+                timestamp: '2016-03-13T14:25:40.563Z',
+                scm:
+                { sha: '9101968710f18a6720c48bf032fd82efd5743b7d',
+                  email: 'mattia@mail.com',
+                  name: 'Mattia Gheda',
+                  timestamp: '2015-12-22T12:44:48.000Z',
+                  branch: 'master' }
+              }
+            }
+          ]);
+        });
     });
   });
 });

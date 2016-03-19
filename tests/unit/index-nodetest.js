@@ -1,3 +1,5 @@
+/* jshint node: true */
+/* jshint jasmine: true */
 'use strict';
 
 var Promise = require('ember-cli/lib/ext/promise');

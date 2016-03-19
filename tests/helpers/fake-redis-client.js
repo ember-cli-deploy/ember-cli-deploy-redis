@@ -1,3 +1,5 @@
+/* jshint node: true */
+var Promise = require('ember-cli/lib/ext/promise');
 var CoreObject = require('core-object');
 
 module.exports = CoreObject.extend({
@@ -21,6 +23,9 @@ module.exports = CoreObject.extend({
   zrange: function() {
   },
   zrevrange: function() {
-    return this.recentRevisions;
+    return Promise.resolve(this.recentRevisions);
+  },
+  mget: function() {
+    return Promise.resolve();
   }
 });
