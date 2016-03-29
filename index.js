@@ -55,6 +55,10 @@ module.exports = {
           var redisLib = context._redisLib;
 
           return new Redis(redisOptions, redisLib);
+        },
+
+        revisionData: function(context) {
+          return context.revisionData;
         }
       },
       configure: function(/* context */) {
@@ -69,7 +73,7 @@ module.exports = {
         this.log('config ok', { verbose: true });
       },
 
-      upload: function(/* context */) {
+      upload: function(context) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
         var distDir           = this.readConfig('distDir');
@@ -80,7 +84,7 @@ module.exports = {
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey))
+          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData')))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
             return { redisKey: key };
