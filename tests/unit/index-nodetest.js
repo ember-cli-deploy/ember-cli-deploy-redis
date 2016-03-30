@@ -273,7 +273,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 11);
+        assert.equal(messages.length, 12);
       });
       it('adds default config to the config object', function() {
         plugin.configure(context);
@@ -312,7 +312,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 10);
+        assert.equal(messages.length, 11);
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -352,7 +352,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 10)
+        assert.equal(messages.length, 11)
       });
       it('does not add default config to the config object', function() {
         plugin.configure(context);
@@ -392,7 +392,7 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 9);
+        assert.equal(messages.length, 10);
       });
 
       it('does not add default config to the config object', function() {
