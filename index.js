@@ -68,7 +68,7 @@ module.exports = {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         }
 
-        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'activeContentSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads'].forEach(this.applyDefaultConfigProperty.bind(this));
+        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'activeContentSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads', 'revisionData'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok', { verbose: true });
       },
