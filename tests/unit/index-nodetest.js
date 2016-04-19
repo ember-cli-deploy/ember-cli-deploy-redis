@@ -95,6 +95,58 @@ describe('redis plugin', function() {
       assert.equal(redisLib.createdClient.options.database, 4);
     });
 
+    describe('handles redis urls appropriately', function() {
+      it('handles pre-stripped urls without a username', function () {
+
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var redisLib = new FakeRedis();
+
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: {
+              url: 'redis://:password@host.amazonaws.com:6379/4'
+            }
+          },
+          _redisLib: redisLib
+        };
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        plugin.readConfig('redisDeployClient');
+
+        assert.equal(redisLib.createdClient.options, 'redis://:password@host.amazonaws.com:6379/4');
+      });
+
+      it('strips Redis username from a Heroku url to work with our upstream redis library', function () {
+
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var redisLib = new FakeRedis();
+
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: {
+              url: 'redis://username:password@host.amazonaws.com:6379/4'
+            }
+          },
+          _redisLib: redisLib
+        };
+        plugin.beforeHook(context);
+        plugin.configure(context);
+        plugin.readConfig('redisDeployClient');
+
+        assert.equal(redisLib.createdClient.options, 'redis://:password@host.amazonaws.com:6379/4');
+      });
+    });
+
     describe('resolving port from the pipeline', function() {
       it('uses the config data if it already exists', function() {
         var plugin = subject.createDeployPlugin({
