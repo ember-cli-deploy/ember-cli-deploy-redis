@@ -1,3 +1,8 @@
+## [0.4.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.4.0) (2016-05-12)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.3.0...0.3.0)
+
+- Strip Heroku-style usernames from config url [#58](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/58) [@acorncom](https://github.com/acorncom)
+
 ## [0.3.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.3.0) (2016-04-01)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.2.0...0.3.0)
 
