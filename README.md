@@ -242,6 +242,37 @@ $ redis-cli
 
 Activation occurs during the `activate` hook of the pipeline. By default, activation is turned off and must be explicitly enabled by one of the 3 methods above.
 
+## Listing Revisions
+
+Another helpful part of the [lightning method of deployment][1] is using [ember-cli-deploy-display-revisions][8] to quickly review previously deployed revisions to your redis instance.
+
+### How do I display the deployed revisions on my redis instance?
+
+First, install the [ember-cli-deploy-display-revisions][8] plugin:
+
+```
+ember install ember-cli-deploy-display-revisions
+```
+
+Then use the following command:
+
+```
+$ ember deploy:list <environment>
+
+- Listing revisions for key: `my-app`
+ RevisionKey  Commit    User                   Branch
+ > 8af596f    af596fbb  email@example.com      staging
+   18cf1a6    8cf1a6c9  email@example.com      staging
+   82be0d2    2be0d26c  email@example.com      staging
+   7dee0a0    dee0a0b3  email@example.com      staging
+   937899e    37899eb6  email@example.com      staging
+   f4cfc1f    4cfc1f0b  email@example.com      staging
+   d748d1b    748d1bc4  email@example.com      staging
+   c6d9fb1    6d9fb155  email@example.com      staging
+   128a967    28a96772  email@example.com      staging
+   bfb5e46    fb5e46dc  email@example.com      staging
+```
+
 ## What if my Redis server isn't publicly accessible?
 
 Not to worry! Just install the handy-dandy `ember-cli-deploy-ssh-tunnel` plugin:
@@ -306,3 +337,4 @@ The following properties are used if present on the deployment `context` object:
 [5]: https://github.com/ember-cli/ember-cli-deploy "ember-cli-deploy"
 [6]: https://github.com/ember-cli-deploy/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
 [7]: https://github.com/ember-cli-deploy/ember-cli-deploy-ssh-tunnel "ember-cli-deploy-ssh-tunnel"
+[8]: https://github.com/ember-cli-deploy/ember-cli-deploy-display-revisions "ember-cli-deploy-display-revisions"
