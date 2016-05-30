@@ -79,7 +79,6 @@ module.exports = {
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
-        var maxRecentUploads  = this.readConfig('maxRecentUploads');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
