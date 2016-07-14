@@ -135,8 +135,10 @@ module.exports = {
       fetchInitialRevisions: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var keyPrefix = this.readConfig('keyPrefix');
+        var activationSuffix = this.readConfig('activationSuffix');
+        
         this.log('Listing initial revisions for key: `' + keyPrefix + '`', { verbose: true });
-        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix, activationSuffix))
           .then(function(revisions) {
             return {
               initialRevisions: revisions
@@ -148,9 +150,10 @@ module.exports = {
       fetchRevisions: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var keyPrefix = this.readConfig('keyPrefix');
+        var activationSuffix = this.readConfig('activationSuffix');
 
         this.log('Listing revisions for key: `' + keyPrefix + '`');
-        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix, activationSuffix))
           .then(function(revisions) {
             return {
               revisions: revisions
