@@ -80,11 +80,12 @@ module.exports = {
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
         var maxRecentUploads  = this.readConfig('maxRecentUploads');
+        var activationSuffix  = this.readConfig('activationSuffix');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData')))
+          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData'), activationSuffix))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
             return { redisKey: key };
