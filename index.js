@@ -50,9 +50,10 @@ module.exports = {
           return context.commandOptions.revision || (context.revisionData && context.revisionData.revisionKey);
         },
         redisDeployClient: function(context) {
+          var redisLib = context._redisLib;
           var redisOptions = this.pluginConfig;
           redisOptions.port = this.readConfig('port');
-          var redisLib = context._redisLib;
+          redisOptions.activationSuffix = this.readConfig('activationSuffix');
 
           return new Redis(redisOptions, redisLib);
         },
@@ -80,12 +81,11 @@ module.exports = {
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
         var maxRecentUploads  = this.readConfig('maxRecentUploads');
-        var activationSuffix  = this.readConfig('activationSuffix');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
         return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData'), activationSuffix))
+          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData')))
           .then(this._uploadSuccessMessage.bind(this))
           .then(function(key) {
             return { redisKey: key };

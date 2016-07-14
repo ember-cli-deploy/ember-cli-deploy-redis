@@ -376,13 +376,15 @@ describe('redis', function() {
     });
 
     it('uses activationSuffix in order to get the right activeRevision', function() {
-      var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+      var redis = new Redis({
+        activationSuffix: 'active-key'
+      }, new FakeRedis(FakeClient.extend({
         get: function(key) {
           return Promise.resolve(key);
         }
       })));
 
-      var promise = redis.activeRevision('key-prefix', 'active-key');
+      var promise = redis.activeRevision('key-prefix');
       return assert.isFulfilled(promise)
         .then(function(result) {
           assert.equal(result, 'key-prefix:active-key');
