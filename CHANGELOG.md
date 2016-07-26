@@ -1,16 +1,21 @@
-## [0.4.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.4.0) (2016-05-12)
-[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.3.0...0.3.0)
+## [0.4.1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.4.1) (2016-07-25)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.4.0...0.4.1)
+
+- Use 'activationSuffix' in fetchRevision hooks [#61](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/61) [@zzarcon](https://github.com/zzarcon)
+
+## [0.4.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.4.0) (2016-05-12)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.3.0...0.4.0)
 
 - Strip Heroku-style usernames from config url [#58](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/58) [@acorncom](https://github.com/acorncom)
 
-## [0.3.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.3.0) (2016-04-01)
+## [0.3.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.3.0) (2016-04-01)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.2.0...0.3.0)
 
 This version adds support for caching the revision data which is collected by the new versions (>= 0.2.0) of the revision-data plugin and displayed by new versions (>= 0.2.0) of the display-revisions plugin.
 
 - add support for caching revision data [\#56](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/56) ([ghedamat](https://github.com/ghedamat))
 
-## [0.2.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/0.2.0) (2016-02-06)
+## [0.2.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.2.0) (2016-02-06)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.1.1...0.2.0)
 
 - add fetchInitialRevisions [\#50](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/50) ([ghedamat](https://github.com/ghedamat))
