@@ -4,7 +4,8 @@ var CoreObject = require('core-object');
 
 module.exports = CoreObject.extend({
   init: function(clientClass) {
-      this.clientClass = clientClass || FakeClient;
+    this._super();
+    this.clientClass = clientClass || FakeClient;
   },
 
   createClient: function(options) {

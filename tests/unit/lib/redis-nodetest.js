@@ -7,7 +7,7 @@ var FakeClient = require('../../helpers/fake-redis-client');
 
 
 var Promise = require('ember-cli/lib/ext/promise');
-var assert  = require('ember-cli/tests/helpers/assert');
+var assert  = require('../../helpers/assert');
 var CoreObject = require('core-object');
 
 describe('redis', function() {
@@ -251,11 +251,11 @@ describe('redis', function() {
     it('copies revision to the activeContentSuffix', function() {
       var redisKey, redisValue;
 
-      var redisClient = new FakeRedis(FakeClient.extend({  
+      var redisClient = new FakeRedis(FakeClient.extend({
         _db: {
           "key-prefix:a": "first revision content",
           "key-prefix:b": "second revision content",
-          "key-prefix:c": "third revision content" 
+          "key-prefix:c": "third revision content"
         },
 
         get: function(key) {
