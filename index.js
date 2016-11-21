@@ -49,13 +49,20 @@ module.exports = {
         revisionKey: function(context) {
           return context.commandOptions.revision || (context.revisionData && context.revisionData.revisionKey);
         },
-        redisDeployClient: function(context) {
+        redisDeployClient: function(context, pluginHelper) {
           var redisLib = context._redisLib;
-          var redisOptions = this.pluginConfig;
-          redisOptions.port = this.readConfig('port');
-          redisOptions.activationSuffix = this.readConfig('activationSuffix');
+          var options = {
+            url: pluginHelper.readConfig('url'),
+            host: pluginHelper.readConfig('host'),
+            port: pluginHelper.readConfig('port'),
+            password: pluginHelper.readConfig('password'),
+            database: pluginHelper.readConfig('database'),
+            maxRecentUploads: pluginHelper.readConfig('maxRecentUploads'),
+            allowOverwrite: pluginHelper.readConfig('allowOverwrite'),
+            activationSuffix: pluginHelper.readConfig('activationSuffix')
+          };
 
-          return new Redis(redisOptions, redisLib);
+          return new Redis(options, redisLib);
         },
 
         revisionData: function(context) {
