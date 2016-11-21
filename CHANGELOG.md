@@ -1,3 +1,12 @@
+# Changelog
+
+## [0.4.3](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.4.2) (2016-11-21)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.4.1...0.4.2)
+
+- Update dependencies [\#66](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/66) ([lukemelia](https://github.com/lukemelia))
+- Fix readConfig bug [\#65](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/65) ([achambers](https://github.com/achambers))
+- previousRevisionKey returns an unresolved promise [\#63](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/63) ([wongpeiyi](https://github.com/wongpeiyi))
+
 ## [0.4.1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v0.4.1) (2016-07-25)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.4.0...0.4.1)
 
