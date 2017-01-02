@@ -118,9 +118,9 @@ The suffix to be used for the Redis key under which the activated revision will 
 
 ### revisionKey
 
-The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revisionKey` passed in from the command line or the `revisionData.revisionKey` property from the deployment context.
+The unique revision number for the version of the file being uploaded to Redis. The Redis key will be a combination of the `keyPrefix` and the `revisionKey`. By default this option will use either the `revision` passed in from the command line or the `revisionData.revisionKey` property from the deployment context.
 
-*Default:* `context.commandLineArgs.revisionKey || context.revisionData.revisionKey`
+*Default:* `context.commandOptions.revision || context.revisionData.revisionKey`
 
 ### activeContentSuffix
 
