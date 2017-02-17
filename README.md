@@ -72,7 +72,9 @@ The Redis host. If [url](#url) is defined, then this option is not needed.
 
 The Redis port. If [url](#url) is defined, then this option is not needed.
 
-*Default:* `6379` or `context.tunnel.srcPort` if present (set by [ember-cli-deploy-ssh-tunnel][7])
+*Default:* `6379`
+
+This option must not be overwritten if you're using [ember-cli-deploy-ssh-tunnel][7], where the default is `context.tunnel.srcPort`.
 
 ### database
 
