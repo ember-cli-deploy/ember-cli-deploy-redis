@@ -11,9 +11,9 @@
  * bin/changelog
  */
 
-var EOL       = require('os').EOL;
+var EOL = require('os').EOL;
 var multiline = require('multiline');
-var Promise   = require('ember-cli/lib/ext/promise');
+var RSVP = require('rsvp');
 var GitHubApi = require('github');
 
 var github         = new GitHubApi({version: '3.0.0'});

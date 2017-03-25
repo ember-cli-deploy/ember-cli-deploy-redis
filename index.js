@@ -1,9 +1,9 @@
 /* jshint node: true */
 'use strict';
 
-var Promise   = require('ember-cli/lib/ext/promise');
-var path      = require('path');
-var fs        = require('fs');
+var RSVP = require('rsvp');
+var path = require('path');
+var fs = require('fs');
 
 var denodeify = require('rsvp').denodeify;
 var readFile  = denodeify(fs.readFile);
@@ -105,7 +105,7 @@ module.exports = {
 
         var revisionKey = redisDeployClient.activeRevision(keyPrefix);
 
-        return Promise.resolve(revisionKey).then(function(previousRevisionKey) {
+        return RSVP.resolve(revisionKey).then(function(previousRevisionKey) {
           return {
             revisionData: {
               previousRevisionKey: previousRevisionKey
@@ -122,7 +122,7 @@ module.exports = {
         var activeContentSuffix = this.readConfig('activeContentSuffix');
 
         this.log('Activating revision `' + revisionKey + '`', { verbose: true });
-        return Promise.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix))
+        return RSVP.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix))
           .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
           .then(function(){
             return {
@@ -146,7 +146,7 @@ module.exports = {
         var keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Listing initial revisions for key: `' + keyPrefix + '`', { verbose: true });
-        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+        return RSVP.resolve(redisDeployClient.fetchRevisions(keyPrefix))
           .then(function(revisions) {
             return {
               initialRevisions: revisions
@@ -160,7 +160,7 @@ module.exports = {
         var keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Listing revisions for key: `' + keyPrefix + '`');
-        return Promise.resolve(redisDeployClient.fetchRevisions(keyPrefix))
+        return RSVP.resolve(redisDeployClient.fetchRevisions(keyPrefix))
           .then(function(revisions) {
             return {
               revisions: revisions
@@ -178,12 +178,12 @@ module.exports = {
 
       _uploadSuccessMessage: function(key) {
         this.log('Uploaded with key `' + key + '`', { verbose: true });
-        return Promise.resolve(key);
+        return RSVP.resolve(key);
       },
 
       _errorMessage: function(error) {
         this.log(error, { color: 'red' });
-        return Promise.reject(error);
+        return RSVP.reject(error);
       }
     });
 

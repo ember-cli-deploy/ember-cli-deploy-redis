@@ -1,8 +1,6 @@
-/* jshint node: true */
-/* jshint jasmine: true */
 'use strict';
 
-var Promise = require('ember-cli/lib/ext/promise');
+var RSVP = require('rsvp');
 var assert  = require('../helpers/assert');
 var FakeRedis = require('../helpers/fake-redis-lib');
 
@@ -506,7 +504,7 @@ describe('redis plugin', function() {
             redisDeployClient: function(/* context */) {
               return {
                 upload: function(keyPrefix, revisionKey) {
-                  return Promise.resolve(keyPrefix + ':' + revisionKey);
+                  return RSVP.resolve(keyPrefix + ':' + revisionKey);
                 }
               };
             }
@@ -576,7 +574,7 @@ describe('redis plugin', function() {
             redisDeployClient: function(/* context */) {
               return {
                 activate: function() {
-                  return Promise.reject('some-error');
+                  return RSVP.reject('some-error');
                 }
               };
             }
@@ -650,7 +648,7 @@ describe('redis plugin', function() {
             redisDeployClient: function(/* context */) {
               return {
                 fetchRevisions: function(/* keyPrefix, revisionKey */) {
-                  return Promise.resolve([{
+                  return RSVP.resolve([{
                     revision: 'a',
                     active: false
                   }]);
@@ -696,7 +694,7 @@ describe('redis plugin', function() {
             redisDeployClient: function(/* context */) {
               return {
                 fetchRevisions: function(/* keyPrefix, revisionKey */) {
-                  return Promise.resolve([{
+                  return RSVP.resolve([{
                     revision: 'a',
                     active: false
                   }]);
