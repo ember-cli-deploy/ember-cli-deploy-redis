@@ -1,4 +1,3 @@
-/* jshint node: true */
 var Promise = require('ember-cli/lib/ext/promise');
 var CoreObject = require('core-object');
 
@@ -8,7 +7,7 @@ module.exports = CoreObject.extend({
     this.recentRevisions = [];
     this.options = options;
   },
-  get: function(key) {
+  get: function(/* key */) {
     return Promise.resolve('some-other-value');
   },
   set: function() { },

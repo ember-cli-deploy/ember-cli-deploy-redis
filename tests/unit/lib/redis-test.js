@@ -1,5 +1,3 @@
-/* jshint node: true */
-/* jshint jasmine: true */
 'use strict';
 
 var FakeRedis = require('../../helpers/fake-redis-lib');
