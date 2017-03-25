@@ -4,7 +4,7 @@ var FakeRedis = require('../../helpers/fake-redis-lib');
 var FakeClient = require('../../helpers/fake-redis-client');
 
 
-var Promise = require('ember-cli/lib/ext/promise');
+var RSVP = require('rsvp');
 var assert  = require('../../helpers/assert');
 var CoreObject = require('core-object');
 
@@ -28,7 +28,7 @@ describe('redis', function() {
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
-          return Promise.resolve(null);
+          return RSVP.resolve(null);
         },
         set: function(key, value) {
           fileUploaded = true;
@@ -69,7 +69,7 @@ describe('redis', function() {
     it('updates the list of recent uploads once upload is successful', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
-          return Promise.resolve(null);
+          return RSVP.resolve(null);
         }
       })));
 
@@ -86,7 +86,7 @@ describe('redis', function() {
 
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
-          return Promise.resolve(null);
+          return RSVP.resolve(null);
         },
         del: function(key) {
           assert(key === 'key:1' || key === 'key:2' || key === 'key:revision-data:1' || key === 'key:revision-data:2');
@@ -116,9 +116,9 @@ describe('redis', function() {
       var redis = new Redis({}, new FakeRedis(FakeClient.extend({
         get: function(key) {
           if (key == 'key:current') {
-            return Promise.resolve('1');
+            return RSVP.resolve('1');
           }
-          return Promise.resolve(null);
+          return RSVP.resolve(null);
         },
         zrange: function() {
           return this.recentRevisions.slice(0,2);
@@ -140,7 +140,7 @@ describe('redis', function() {
 
       var redis = new Redis({ maxRecentUploads: 5 }, new FakeRedis(FakeClient.extend({
         get: function(/* key */) {
-          return Promise.resolve(null);
+          return RSVP.resolve(null);
         },
         zrange: function(listKey, startIndex, stopIndex) {
           var end = this.recentRevisions.length - (Math.abs(stopIndex) - 1);
@@ -165,7 +165,7 @@ describe('redis', function() {
         var redis = new Redis({}, new FakeRedis(FakeClient.extend({
           get: function(key) {
               redisKey = key;
-              return Promise.resolve('some-other-value');
+              return RSVP.resolve('some-other-value');
           }
         })));
 
@@ -181,7 +181,7 @@ describe('redis', function() {
         var redis = new Redis({}, new FakeRedis(FakeClient.extend({
           get: function(key) {
               redisKey = key;
-              return Promise.resolve('some-other-value');
+              return RSVP.resolve('some-other-value');
             }
         })));
 
@@ -257,11 +257,11 @@ describe('redis', function() {
         },
 
         get: function(key) {
-          return Promise.resolve(this._db[key]);
+          return RSVP.resolve(this._db[key]);
         },
         set: function(key, value) {
           this._db[key] = value;
-          return Promise.resolve(value);
+          return RSVP.resolve(value);
         },
       }));
 
@@ -345,7 +345,7 @@ describe('redis', function() {
         get: function() {
         },
         mget: function(keys) {
-          return Promise.resolve(['{"revisionKey":"a","timestamp":"2016-03-13T14:25:40.563Z","scm":{"sha":"9101968710f18a6720c48bf032fd82efd5743b7d","email":"mattia@mail.com","name":"Mattia Gheda","timestamp":"2015-12-22T12:44:48.000Z","branch":"master"}}']);
+          return RSVP.resolve(['{"revisionKey":"a","timestamp":"2016-03-13T14:25:40.563Z","scm":{"sha":"9101968710f18a6720c48bf032fd82efd5743b7d","email":"mattia@mail.com","name":"Mattia Gheda","timestamp":"2015-12-22T12:44:48.000Z","branch":"master"}}']);
         }
       })));
 
@@ -378,7 +378,7 @@ describe('redis', function() {
         activationSuffix: 'active-key'
       }, new FakeRedis(FakeClient.extend({
         get: function(key) {
-          return Promise.resolve(key);
+          return RSVP.resolve(key);
         }
       })));
 

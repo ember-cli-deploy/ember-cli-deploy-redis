@@ -1,4 +1,4 @@
-var Promise = require('ember-cli/lib/ext/promise');
+var RSVP = require('rsvp');
 var CoreObject = require('core-object');
 
 module.exports = CoreObject.extend({
@@ -8,7 +8,7 @@ module.exports = CoreObject.extend({
     this.options = options;
   },
   get: function(/* key */) {
-    return Promise.resolve('some-other-value');
+    return RSVP.resolve('some-other-value');
   },
   set: function() { },
   del: function() { },
@@ -23,9 +23,9 @@ module.exports = CoreObject.extend({
   zrange: function() {
   },
   zrevrange: function() {
-    return Promise.resolve(this.recentRevisions);
+    return RSVP.resolve(this.recentRevisions);
   },
   mget: function() {
-    return Promise.resolve();
+    return RSVP.resolve();
   }
 });
