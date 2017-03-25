@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.0.0-beta.1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.0-beta.1) (2017-03-25)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.0-beta.0...v1.0.0-beta.1)
+
+**Merged pull requests:**
+
+- Eliminate usage triggering ember-cli deprecation [\#72](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/72) ([lukemelia](https://github.com/lukemelia))
+
 ## [v1.0.0-beta.0](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.0-beta.0) (2017-03-25)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v0.4.2...v1.0.0-beta.0)
 
