@@ -503,7 +503,7 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context) {
+            redisDeployClient: function(/* context */) {
               return {
                 upload: function(keyPrefix, revisionKey) {
                   return Promise.resolve(keyPrefix + ':' + revisionKey);
@@ -540,7 +540,7 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context){
+            redisDeployClient: function(/* context */){
               return {
                 activate: function() {
                   activateCalled = true;
@@ -573,7 +573,7 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context) {
+            redisDeployClient: function(/* context */) {
               return {
                 activate: function() {
                   return Promise.reject('some-error');
@@ -647,9 +647,9 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context) {
+            redisDeployClient: function(/* context */) {
               return {
-                fetchRevisions: function(keyPrefix, revisionKey) {
+                fetchRevisions: function(/* keyPrefix, revisionKey */) {
                   return Promise.resolve([{
                     revision: 'a',
                     active: false
@@ -693,9 +693,9 @@ describe('redis plugin', function() {
             filePattern: 'index.html',
             distDir: 'tests',
             revisionKey: '123abc',
-            redisDeployClient: function(context) {
+            redisDeployClient: function(/* context */) {
               return {
-                fetchRevisions: function(keyPrefix, revisionKey) {
+                fetchRevisions: function(/* keyPrefix, revisionKey */) {
                   return Promise.resolve([{
                     revision: 'a',
                     active: false

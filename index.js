@@ -81,13 +81,12 @@ module.exports = {
         this.log('config ok', { verbose: true });
       },
 
-      upload: function(context) {
+      upload: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
-        var maxRecentUploads  = this.readConfig('maxRecentUploads');
         var filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
