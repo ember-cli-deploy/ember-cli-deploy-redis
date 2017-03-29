@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.0.0-beta.2](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.0-beta.2) (2017-03-29)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.0-beta.1...v1.0.0-beta.2)
+
+**Merged pull requests:**
+
+- release with travis [\#73](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/73) ([ghedamat](https://github.com/ghedamat))
+
 ## [v1.0.0-beta.1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.0-beta.1) (2017-03-25)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.0-beta.0...v1.0.0-beta.1)
 
