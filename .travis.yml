@@ -1,10 +1,8 @@
----
 language: node_js
 node_js:
-  - "6"
-
+  - 4
+  - 6
 sudo: false
-
 cache:
   yarn: true
 
@@ -17,3 +15,12 @@ install:
 
 script:
   - yarn test
+
+deploy:
+  provider: npm
+  email: ghedamat@gmail.com
+  api_key:
+    secure: MDGspGYSoGecqxePVz9c9MCuTA0L0NhNv1HaHzuLeq6/DTb4TqpIcgAx7tG3fnMOG8IvIv60J3fAD/GY6eYfrdWp0RwfrXbihsEM5VNVdeT4t++eV1bkWNk2CvmASyPCQt3nrchkkth+W2pV2NrZok+hFyvTOxIUdMzKgOEvPjE=
+  on:
+    tags: true
+    repo: ember-cli-deploy/ember-cli-deploy-redis
