@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.0.2](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.2) (2017-05-04)
+[Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.1...v1.0.2)
+
+**Merged pull requests:**
+
+- Revert "replaces then-redis with redis. closes \#74" [\#78](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/78) ([lukemelia](https://github.com/lukemelia))
+
 ## [v1.0.1](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.1) (2017-05-04)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.0...v1.0.1)
 
