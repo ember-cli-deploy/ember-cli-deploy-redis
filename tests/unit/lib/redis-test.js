@@ -16,10 +16,31 @@ describe('redis', function() {
   });
 
   describe('#upload', function() {
+    describe('multiple files', function() {
+      it('uploads the contents if the key does not already exist', function() {
+        var fileUploaded = false;
+
+        var redis = new Redis({}, new FakeRedis(FakeClient.extend({
+          hlen: function(key) {
+            return RSVP.resolve(0);
+          },
+          hmset: function(key) {
+            fileUploaded = true;
+          }
+       })));
+
+        var promise = redis.upload('key', {'index.html': 'value', 'vendor.js': "'use strict';"});
+        return assert.isFulfilled(promise)
+          .then(function() {
+            assert.ok(fileUploaded);
+          });
+      });
+    });
+
     it('rejects if the key already exists in redis', function() {
       var redis = new Redis({}, new FakeRedis());
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', {'index.html': 'value'});
       return assert.isRejected(promise, /^Value already exists for key: key:default$/);
     });
 
@@ -41,7 +62,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', {'index.html': 'value'});
       return assert.isFulfilled(promise)
         .then(function() {
           assert.ok(fileUploaded);
@@ -59,7 +80,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', {'index.html': 'value'});
       return assert.isFulfilled(promise)
         .then(function() {
           assert.ok(fileUploaded);
@@ -73,7 +94,7 @@ describe('redis', function() {
         }
       })));
 
-      var promise = redis.upload('key', 'value');
+      var promise = redis.upload('key', {'index.html': 'value'});
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 1);
@@ -102,7 +123,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
-      var promise = redis.upload('key', '12', 'value');
+      var promise = redis.upload('key', '12', {'index.html': 'value'});
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 10);
@@ -127,7 +148,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['1','2','3','4','5','6','7','8','9','10','11'];
 
-      var promise = redis.upload('key', '12', 'value');
+      var promise = redis.upload('key', '12', {'index.html': 'value'});
       return assert.isFulfilled(promise)
         .then(function() {
           assert.equal(redis._client.recentRevisions.length, 11);
@@ -150,7 +171,7 @@ describe('redis', function() {
 
       redis._client.recentRevisions = ['1','2','3','4','5'];
 
-      var promise = redis.upload('key', '6', 'value');
+      var promise = redis.upload('key', '6', {'index.html': 'value'});
       return assert.isFulfilled(promise)
           .then(function() {
             assert.equal(redis._client.recentRevisions.length, 5);
@@ -169,7 +190,7 @@ describe('redis', function() {
           }
         })));
 
-        var promise = redis.upload('key', 'value');
+        var promise = redis.upload('key', {'index.html': 'value'});
         return assert.isRejected(promise)
           .then(function() {
             assert.equal(redisKey, 'key:default');
@@ -185,7 +206,7 @@ describe('redis', function() {
             }
         })));
 
-        var promise = redis.upload('key', 'tag', 'value');
+        var promise = redis.upload('key', 'tag', {'index.html': 'value'});
         return assert.isRejected(promise)
           .then(function() {
             assert.equal(redisKey, 'key:tag');

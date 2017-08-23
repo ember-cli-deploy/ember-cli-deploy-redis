@@ -4,6 +4,8 @@
 var RSVP = require('rsvp');
 var path = require('path');
 var fs = require('fs');
+var glob = require('glob');
+var minimatch = require('minimatch');
 
 var denodeify = require('rsvp').denodeify;
 var readFile  = denodeify(fs.readFile);
@@ -84,19 +86,30 @@ module.exports = {
       upload: function(/* context */) {
         var redisDeployClient = this.readConfig('redisDeployClient');
         var revisionKey       = this.readConfig('revisionKey');
+        var revisionData      = this.readConfig('revisionData');
         var distDir           = this.readConfig('distDir');
         var filePattern       = this.readConfig('filePattern');
         var keyPrefix         = this.readConfig('keyPrefix');
-        var filePath          = path.join(distDir, filePattern);
 
-        this.log('Uploading `' + filePath + '`', { verbose: true });
-        return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData')))
-          .then(this._uploadSuccessMessage.bind(this))
-          .then(function(key) {
-            return { redisKey: key };
-          })
-          .catch(this._errorMessage.bind(this));
+
+        var distFiles = glob.sync('**/*', { cwd: distDir, nodir: true });
+        var filesToUpload = distFiles.filter(minimatch.filter(filePattern, { matchBase: true, dot: false }));
+
+        this.log('Uploading `' + filesToUpload.join(',') + '`', { verbose: true });
+        var readFileContents = this._readFileContents;
+
+        return RSVP.hash(filesToUpload.reduce(function(hsh, filePath) {
+          hsh[filePath] = readFileContents(path.join(distDir, filePath));
+          return hsh;
+        }, {}))
+        .then(function(filesHash) {
+          return redisDeployClient.upload(keyPrefix, revisionKey, revisionData, filesHash);
+        })
+        .then(this._uploadSuccessMessage.bind(this))
+        .then(function(key) {
+          return { redisKey: key };
+        })
+        .catch(this._errorMessage.bind(this));
       },
 
       willActivate: function(/* context */) {
