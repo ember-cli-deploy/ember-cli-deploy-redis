@@ -11,6 +11,10 @@ module.exports = CoreObject.extend({
     return RSVP.resolve('some-other-value');
   },
   set: function() { },
+  hlen: function(/* key */) {
+    return RSVP.resolve(0);
+  },
+  hmset: function() { },
   del: function() { },
   zadd: function(key, score , tag) {
     var prefix = key.replace(':revisions','');
