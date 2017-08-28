@@ -337,10 +337,10 @@ The following properties are used if present on the deployment `context` object:
 Since this is a node-only ember-cli addon, this package does not include many files and dependencies which are part of ember-cli's typical `ember build` and `ember test` processes.
 
 [1]: https://github.com/ember-cli-deploy/ember-cli-deploy-lightning-pack "ember-cli-deploy-lightning-pack"
-[2]: http://ember-cli.github.io/ember-cli-deploy/plugins "Plugin Documentation"
+[2]: http://ember-cli-deploy.com/docs/v1.0.x/using-plugins/ "Plugin Documentation"
 [3]: https://www.npmjs.com/package/redis "Redis Client"
 [4]: https://github.com/ember-cli-deploy/ember-cli-deploy-build "ember-cli-deploy-build"
-[5]: https://github.com/ember-cli/ember-cli-deploy "ember-cli-deploy"
+[5]: https://github.com/ember-cli-deploy/ember-cli-deploy "ember-cli-deploy"
 [6]: https://github.com/ember-cli-deploy/ember-cli-deploy-revision-data "ember-cli-deploy-revision-data"
 [7]: https://github.com/ember-cli-deploy/ember-cli-deploy-ssh-tunnel "ember-cli-deploy-ssh-tunnel"
 [8]: https://github.com/ember-cli-deploy/ember-cli-deploy-display-revisions "ember-cli-deploy-display-revisions"
