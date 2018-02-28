@@ -143,6 +143,31 @@ describe('redis plugin', function() {
 
         assert.equal(redisLib.createdClient.options, 'redis://:password@host.amazonaws.com:6379/4');
       });
+
+      it('throws if the Redis URL is missing the "redis://" protocol', function() {
+        var plugin = subject.createDeployPlugin({
+          name: 'redis'
+        });
+
+        var redisLib = new FakeRedis();
+
+        var context = {
+          ui: mockUi,
+          project: stubProject,
+          config: {
+            redis: {
+              url: 'host.amazonaws.com:6379/4'
+            }
+          },
+          _redisLib: redisLib
+        };
+
+        plugin.beforeHook(context);
+
+        assert.throws(function() {
+          plugin.configure(context);
+        }, 'Your Redis URL appears to be missing the "redis://" protocol. Update your URL to: redis://host.amazonaws.com:6379/4');
+      });
     });
 
     describe('resolving port from the pipeline', function() {
