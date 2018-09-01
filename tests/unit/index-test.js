@@ -1,41 +1,46 @@
-'use strict';
+"use strict";
 
-var RSVP = require('rsvp');
-var assert  = require('../helpers/assert');
-var FakeRedis = require('../helpers/fake-redis-lib');
+var RSVP = require("rsvp");
+var assert = require("../helpers/assert");
+var IoRedis = require("ioredis");
+var sandbox = require("sinon").createSandbox();
 
 var stubProject = {
-  name: function(){
-    return 'my-project';
+  name: function() {
+    return "my-project";
   }
 };
 
-describe('redis plugin', function() {
+describe("redis plugin", function() {
   var subject, mockUi;
 
   beforeEach(function() {
-    subject = require('../../index');
+    subject = require("../../index");
     mockUi = {
       verbose: true,
       messages: [],
-      write: function() { },
+      write: function() {},
       writeLine: function(message) {
         this.messages.push(message);
       }
     };
   });
 
-  it('has a name', function() {
-    var result = subject.createDeployPlugin({
-      name: 'test-plugin'
-    });
-
-    assert.equal(result.name, 'test-plugin');
+  afterEach(function() {
+    sandbox.restore();
   });
 
-  it('implements the correct hooks', function() {
+  it("has a name", function() {
+    var result = subject.createDeployPlugin({
+      name: "test-plugin"
+    });
+
+    assert.equal(result.name, "test-plugin");
+  });
+
+  it("implements the correct hooks", function() {
     var plugin = subject.createDeployPlugin({
-      name: 'test-plugin'
+      name: "test-plugin"
     });
     assert.ok(plugin.configure);
     assert.ok(plugin.upload);
@@ -43,10 +48,10 @@ describe('redis plugin', function() {
     assert.ok(plugin.didDeploy);
   });
 
-  describe('configure hook', function() {
-    it('runs without error if config is ok', function() {
+  describe("configure hook", function() {
+    it("runs without error if config is ok", function() {
       var plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       var context = {
@@ -54,7 +59,7 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            host: 'somehost',
+            host: "somehost",
             port: 1234,
             database: 4
           }
@@ -65,101 +70,107 @@ describe('redis plugin', function() {
       assert.ok(true); // didn't throw an error
     });
 
-    it('passes through config options', function () {
+    it("passes through config options", function() {
       var plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
-      var redisLib = new FakeRedis();
+      var redisLibStub = sandbox.stub(IoRedis, "constructor");
 
       var context = {
         ui: mockUi,
         project: stubProject,
         config: {
           redis: {
-            host: 'somehost',
+            host: "somehost",
             port: 1234,
             database: 4
           }
         },
-        _redisLib: redisLib
+        _redisLib: redisLibStub
       };
       plugin.beforeHook(context);
       plugin.configure(context);
-      plugin.readConfig('redisDeployClient');
+      plugin.readConfig("redisDeployClient");
 
-      assert.equal(redisLib.createdClient.options.host, 'somehost');
-      assert.equal(redisLib.createdClient.options.port, 1234);
-      assert.equal(redisLib.createdClient.options.database, 4);
+      assert.isTrue(
+        redisLibStub.calledWith({
+          host: "somehost",
+          port: 1234,
+          db: 4
+        })
+      );
     });
 
-    describe('handles redis urls appropriately', function() {
-      it('handles pre-stripped urls without a username', function () {
-
+    describe("handles redis urls appropriately", function() {
+      it("handles pre-stripped urls without a username", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
-        var redisLib = new FakeRedis();
+        var redisLibStub = sandbox.stub(IoRedis, "constructor");
 
         var context = {
           ui: mockUi,
           project: stubProject,
           config: {
             redis: {
-              url: 'redis://:password@host.amazonaws.com:6379/4'
+              url: "redis://:password@host.amazonaws.com:6379/4"
             }
           },
-          _redisLib: redisLib
+          _redisLib: redisLibStub
         };
         plugin.beforeHook(context);
         plugin.configure(context);
-        plugin.readConfig('redisDeployClient');
+        plugin.readConfig("redisDeployClient");
 
-        assert.equal(redisLib.createdClient.options, 'redis://:password@host.amazonaws.com:6379/4');
+        assert.isTrue(
+          redisLibStub.calledWith("redis://:password@host.amazonaws.com:6379/4")
+        );
       });
 
-      it('strips Redis username from a Heroku url to work with our upstream redis library', function () {
-
+      it("strips Redis username from a Heroku url to work with our upstream redis library", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
-        var redisLib = new FakeRedis();
+        var redisLibStub = sandbox.stub(IoRedis, "constructor");
 
         var context = {
           ui: mockUi,
           project: stubProject,
           config: {
             redis: {
-              url: 'redis://username:password@host.amazonaws.com:6379/4'
+              url: "redis://username:password@host.amazonaws.com:6379/4"
             }
           },
-          _redisLib: redisLib
+          _redisLib: redisLibStub
         };
         plugin.beforeHook(context);
         plugin.configure(context);
-        plugin.readConfig('redisDeployClient');
+        plugin.readConfig("redisDeployClient");
 
-        assert.equal(redisLib.createdClient.options, 'redis://:password@host.amazonaws.com:6379/4');
+        assert.isTrue(
+          redisLibStub.calledWith("redis://:password@host.amazonaws.com:6379/4")
+        );
       });
 
       it('throws if the Redis URL is missing the "redis://" protocol', function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
-        var redisLib = new FakeRedis();
+        var redisLibStub = sandbox.stub(IoRedis, "constructor");
 
         var context = {
           ui: mockUi,
           project: stubProject,
           config: {
             redis: {
-              url: 'host.amazonaws.com:6379/4'
+              url: "host.amazonaws.com:6379/4"
             }
           },
-          _redisLib: redisLib
+          _redisLib: redisLibStub
         };
 
         plugin.beforeHook(context);
@@ -170,15 +181,15 @@ describe('redis plugin', function() {
       });
     });
 
-    describe('resolving port from the pipeline', function() {
-      it('uses the config data if it already exists', function() {
+    describe("resolving port from the pipeline", function() {
+      it("uses the config data if it already exists", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
-          port: 1234,
+          host: "somehost",
+          port: 1234
         };
         var context = {
           ui: mockUi,
@@ -187,22 +198,22 @@ describe('redis plugin', function() {
             redis: config
           },
           tunnel: {
-            srcPort: '2345'
+            srcPort: "2345"
           }
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.equal(plugin.readConfig('port'), '1234');
+        assert.equal(plugin.readConfig("port"), "1234");
       });
 
-      it('uses the context value if it exists and config doesn\'t', function() {
+      it("uses the context value if it exists and config doesn't", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
+          host: "somehost"
         };
         var context = {
           ui: mockUi,
@@ -211,22 +222,22 @@ describe('redis plugin', function() {
             redis: config
           },
           tunnel: {
-            srcPort: '2345'
+            srcPort: "2345"
           }
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.equal(plugin.readConfig('port'), '2345');
+        assert.equal(plugin.readConfig("port"), "2345");
       });
 
-      it('uses the default port if config and context don\'t exist', function() {
+      it("uses the default port if config and context don't exist", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
+          host: "somehost"
         };
         var context = {
           ui: mockUi,
@@ -238,20 +249,20 @@ describe('redis plugin', function() {
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.equal(plugin.readConfig('port'), '6379');
+        assert.equal(plugin.readConfig("port"), "6379");
       });
     });
 
-    describe('resolving revisionKey from the pipeline', function() {
-      it('uses the config data if it already exists', function() {
+    describe("resolving revisionKey from the pipeline", function() {
+      it("uses the config data if it already exists", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
+          host: "somehost",
           port: 1234,
-          revisionKey: '12345'
+          revisionKey: "12345"
         };
         var context = {
           ui: mockUi,
@@ -260,22 +271,22 @@ describe('redis plugin', function() {
             redis: config
           },
           revisionData: {
-            revisionKey: 'something-else'
+            revisionKey: "something-else"
           }
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.equal(plugin.readConfig('revisionKey'), '12345');
+        assert.equal(plugin.readConfig("revisionKey"), "12345");
       });
 
-      it('uses the commandOptions value if it exists', function() {
+      it("uses the commandOptions value if it exists", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
+          host: "somehost",
           port: 1234
         };
         var context = {
@@ -285,26 +296,26 @@ describe('redis plugin', function() {
             redis: config
           },
           commandOptions: {
-            revision: 'abcd'
+            revision: "abcd"
           },
           revisionData: {
-            revisionKey: 'something-else'
+            revisionKey: "something-else"
           }
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.typeOf(config.revisionKey, 'function');
-        assert.equal(config.revisionKey(context), 'abcd');
+        assert.typeOf(config.revisionKey, "function");
+        assert.equal(config.revisionKey(context), "abcd");
       });
 
-      it('uses the context value if it exists and commandOptions doesn\'t', function() {
+      it("uses the context value if it exists and commandOptions doesn't", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
 
         var config = {
-          host: 'somehost',
+          host: "somehost",
           port: 1234
         };
         var context = {
@@ -313,24 +324,24 @@ describe('redis plugin', function() {
           config: {
             redis: config
           },
-          commandOptions: { },
+          commandOptions: {},
           revisionData: {
-            revisionKey: 'something-else'
+            revisionKey: "something-else"
           }
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        assert.typeOf(config.revisionKey, 'function');
-        assert.equal(config.revisionKey(context), 'something-else');
+        assert.typeOf(config.revisionKey, "function");
+        assert.equal(config.revisionKey(context), "something-else");
       });
     });
-    describe('without providing config', function () {
+    describe("without providing config", function() {
       var config, plugin, context;
       beforeEach(function() {
-        config = { };
+        config = {};
         plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
         context = {
           ui: mockUi,
@@ -339,7 +350,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional config', function() {
+      it("warns about missing optional config", function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -350,7 +361,7 @@ describe('redis plugin', function() {
         }, []);
         assert.equal(messages.length, 12);
       });
-      it('adds default config to the config object', function() {
+      it("adds default config to the config object", function() {
         plugin.configure(context);
         assert.isDefined(config.redis.host);
         assert.isDefined(config.redis.port);
@@ -360,16 +371,16 @@ describe('redis plugin', function() {
       });
     });
 
-    describe('with a keyPrefix provided', function () {
+    describe("with a keyPrefix provided", function() {
       var config, plugin, context;
       beforeEach(function() {
         config = {
           redis: {
-            keyPrefix: 'proj:home'
+            keyPrefix: "proj:home"
           }
         };
         plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
         context = {
           ui: mockUi,
@@ -378,7 +389,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, activationSuffix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info', function() {
+      it("warns about missing optional filePattern, distDir, activationSuffix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info", function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -389,27 +400,27 @@ describe('redis plugin', function() {
         }, []);
         assert.equal(messages.length, 11);
       });
-      it('does not add default config to the config object', function() {
+      it("does not add default config to the config object", function() {
         plugin.configure(context);
         assert.isDefined(config.redis.host);
         assert.isDefined(config.redis.port);
         assert.isDefined(config.redis.filePattern);
         assert.isDefined(config.redis.activationSuffix);
         assert.isDefined(config.redis.didDeployMessage);
-        assert.equal(config.redis.keyPrefix, 'proj:home');
+        assert.equal(config.redis.keyPrefix, "proj:home");
       });
     });
 
-    describe('with an activationSuffix provided', function () {
+    describe("with an activationSuffix provided", function() {
       var config, plugin, context;
       beforeEach(function() {
         config = {
           redis: {
-            activationSuffix: 'special:suffix'
+            activationSuffix: "special:suffix"
           }
         };
         plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
         context = {
           ui: mockUi,
@@ -418,7 +429,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, keyPrefix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info', function() {
+      it("warns about missing optional filePattern, distDir, keyPrefix, revisionKey, didDeployMessage, maxNumberOfRecentUploads, and connection info", function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -427,29 +438,29 @@ describe('redis plugin', function() {
 
           return previous;
         }, []);
-        assert.equal(messages.length, 11)
+        assert.equal(messages.length, 11);
       });
-      it('does not add default config to the config object', function() {
+      it("does not add default config to the config object", function() {
         plugin.configure(context);
         assert.isDefined(config.redis.host);
         assert.isDefined(config.redis.port);
         assert.isDefined(config.redis.filePattern);
         assert.isDefined(config.redis.keyPrefix);
         assert.isDefined(config.redis.didDeployMessage);
-        assert.equal(config.redis.activationSuffix, 'special:suffix');
+        assert.equal(config.redis.activationSuffix, "special:suffix");
       });
     });
 
-    describe('with a url provided', function () {
+    describe("with a url provided", function() {
       var config, plugin, context;
       beforeEach(function() {
         config = {
           redis: {
-            url: 'redis://localhost:6379'
+            url: "redis://localhost:6379"
           }
         };
         plugin = subject.createDeployPlugin({
-          name: 'redis'
+          name: "redis"
         });
         context = {
           ui: mockUi,
@@ -458,7 +469,7 @@ describe('redis plugin', function() {
         };
         plugin.beforeHook(context);
       });
-      it('warns about missing optional filePattern, distDir, keyPrefix, activationSuffix, revisionKey, maxNumberOfRecentUploads, and didDeployMessage only', function() {
+      it("warns about missing optional filePattern, distDir, keyPrefix, activationSuffix, revisionKey, maxNumberOfRecentUploads, and didDeployMessage only", function() {
         plugin.configure(context);
         var messages = mockUi.messages.reduce(function(previous, current) {
           if (/- Missing config:\s.*, using default:\s/.test(current)) {
@@ -470,7 +481,7 @@ describe('redis plugin', function() {
         assert.equal(messages.length, 10);
       });
 
-      it('does not add default config to the config object', function() {
+      it("does not add default config to the config object", function() {
         plugin.configure(context);
         assert.isUndefined(config.redis.host);
         assert.isUndefined(config.redis.port);
@@ -479,13 +490,13 @@ describe('redis plugin', function() {
       });
     });
 
-    describe('with aliases', function () {
-      it('passes config for specified alias to redis', function () {
+    describe("with aliases", function() {
+      it("passes config for specified alias to redis", function() {
         var plugin = subject.createDeployPlugin({
-          name: 'foobar'
+          name: "foobar"
         });
 
-        var redisLib = new FakeRedis();
+        var redisLibStub = sandbox.stub(IoRedis, "constructor");
 
         var config = {
           database: 7
@@ -496,25 +507,25 @@ describe('redis plugin', function() {
           config: {
             foobar: config
           },
-          _redisLib: redisLib
+          _redisLib: redisLibStub
         };
 
         plugin.beforeHook(context);
         plugin.configure(context);
-        plugin.readConfig('redisDeployClient');
+        plugin.readConfig("redisDeployClient");
 
-        assert.equal(redisLib.createdClient.options.database, 7);
+        assert.isTrue(redisLibStub.calledWithMatch({ db: 7 }));
       });
     });
   });
 
-  describe('upload hook', function() {
+  describe("upload hook", function() {
     var plugin;
     var context;
 
-    it('uploads the index', function() {
+    it("uploads the index", function() {
       plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       context = {
@@ -522,14 +533,14 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            keyPrefix: 'test-prefix',
-            filePattern: 'index.html',
-            distDir: 'tests',
-            revisionKey: '123abc',
+            keyPrefix: "test-prefix",
+            filePattern: "index.html",
+            distDir: "tests",
+            revisionKey: "123abc",
             redisDeployClient: function(/* context */) {
               return {
                 upload: function(keyPrefix, revisionKey) {
-                  return RSVP.resolve(keyPrefix + ':' + revisionKey);
+                  return RSVP.resolve(keyPrefix + ":" + revisionKey);
                 }
               };
             }
@@ -539,19 +550,18 @@ describe('redis plugin', function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert.isFulfilled(plugin.upload(context))
-        .then(function(result) {
-          assert.deepEqual(result, { redisKey: 'test-prefix:123abc' });
-        });
+      return assert.isFulfilled(plugin.upload(context)).then(function(result) {
+        assert.deepEqual(result, { redisKey: "test-prefix:123abc" });
+      });
     });
   });
 
-  describe('activate hook', function() {
-    it('activates revision', function() {
+  describe("activate hook", function() {
+    it("activates revision", function() {
       var activateCalled = false;
 
       var plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       var context = {
@@ -559,11 +569,11 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            keyPrefix: 'test-prefix',
-            filePattern: 'index.html',
-            distDir: 'tests',
-            revisionKey: '123abc',
-            redisDeployClient: function(/* context */){
+            keyPrefix: "test-prefix",
+            filePattern: "index.html",
+            distDir: "tests",
+            revisionKey: "123abc",
+            redisDeployClient: function(/* context */) {
               return {
                 activate: function() {
                   activateCalled = true;
@@ -575,16 +585,17 @@ describe('redis plugin', function() {
       };
       plugin.beforeHook(context);
 
-      return assert.isFulfilled(plugin.activate(context))
+      return assert
+        .isFulfilled(plugin.activate(context))
         .then(function(result) {
           assert.ok(activateCalled);
-          assert.equal(result.revisionData.activatedRevisionKey, '123abc');
+          assert.equal(result.revisionData.activatedRevisionKey, "123abc");
         });
     });
 
-    it('rejects if an error is thrown when activating', function() {
+    it("rejects if an error is thrown when activating", function() {
       var plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       var context = {
@@ -592,14 +603,14 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            keyPrefix: 'test-prefix',
-            filePattern: 'index.html',
-            distDir: 'tests',
-            revisionKey: '123abc',
+            keyPrefix: "test-prefix",
+            filePattern: "index.html",
+            distDir: "tests",
+            revisionKey: "123abc",
             redisDeployClient: function(/* context */) {
               return {
                 activate: function() {
-                  return RSVP.reject('some-error');
+                  return RSVP.reject("some-error");
                 }
               };
             }
@@ -608,57 +619,59 @@ describe('redis plugin', function() {
       };
 
       plugin.beforeHook(context);
-      return assert.isRejected(plugin.activate(context))
-        .then(function(error) {
-          assert.equal(error, 'some-error');
-        });
+      return assert.isRejected(plugin.activate(context)).then(function(error) {
+        assert.equal(error, "some-error");
+      });
     });
   });
-  describe('didDeploy hook', function() {
-    it('prints default message about lack of activation when revision has not been activated', function() {
-      var messageOutput = '';
+  describe("didDeploy hook", function() {
+    it("prints default message about lack of activation when revision has not been activated", function() {
+      var messageOutput = "";
 
       var plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
-      plugin.upload = function(){};
-      plugin.activate = function(){};
+      plugin.upload = function() {};
+      plugin.activate = function() {};
 
       var context = {
-        deployTarget: 'qa',
+        deployTarget: "qa",
         ui: {
-          write: function(message){
+          write: function(message) {
             messageOutput = messageOutput + message;
           },
-          writeLine: function(message){
-            messageOutput = messageOutput + message + '\n';
+          writeLine: function(message) {
+            messageOutput = messageOutput + message + "\n";
           }
         },
         project: stubProject,
         config: {
-          redis: { }
+          redis: {}
         },
         revisionData: {
-          revisionKey: '123abc',
+          revisionKey: "123abc"
         }
       };
       plugin.beforeHook(context);
       plugin.configure(context);
       plugin.beforeHook(context);
       plugin.didDeploy(context);
-      assert.match(messageOutput, /Deployed but did not activate revision 123abc./);
+      assert.match(
+        messageOutput,
+        /Deployed but did not activate revision 123abc./
+      );
       assert.match(messageOutput, /To activate, run/);
       assert.match(messageOutput, /ember deploy:activate qa --revision=123abc/);
     });
   });
 
-  describe('fetchInitialRevisions hook', function() {
-    it('fills the initialRevisions variable on context', function() {
+  describe("fetchInitialRevisions hook", function() {
+    it("fills the initialRevisions variable on context", function() {
       var plugin;
       var context;
 
       plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       context = {
@@ -666,17 +679,19 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            keyPrefix: 'test-prefix',
-            filePattern: 'index.html',
-            distDir: 'tests',
-            revisionKey: '123abc',
+            keyPrefix: "test-prefix",
+            filePattern: "index.html",
+            distDir: "tests",
+            revisionKey: "123abc",
             redisDeployClient: function(/* context */) {
               return {
                 fetchRevisions: function(/* keyPrefix, revisionKey */) {
-                  return RSVP.resolve([{
-                    revision: 'a',
-                    active: false
-                  }]);
+                  return RSVP.resolve([
+                    {
+                      revision: "a",
+                      active: false
+                    }
+                  ]);
                 }
               };
             }
@@ -686,25 +701,28 @@ describe('redis plugin', function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert.isFulfilled(plugin.fetchInitialRevisions(context))
+      return assert
+        .isFulfilled(plugin.fetchInitialRevisions(context))
         .then(function(result) {
           assert.deepEqual(result, {
-            initialRevisions: [{
-              "active": false,
-              "revision": "a"
-            }]
+            initialRevisions: [
+              {
+                active: false,
+                revision: "a"
+              }
+            ]
           });
         });
     });
   });
 
-  describe('fetchRevisions hook', function() {
-    it('fills the revisions variable on context', function() {
+  describe("fetchRevisions hook", function() {
+    it("fills the revisions variable on context", function() {
       var plugin;
       var context;
 
       plugin = subject.createDeployPlugin({
-        name: 'redis'
+        name: "redis"
       });
 
       context = {
@@ -712,17 +730,19 @@ describe('redis plugin', function() {
         project: stubProject,
         config: {
           redis: {
-            keyPrefix: 'test-prefix',
-            filePattern: 'index.html',
-            distDir: 'tests',
-            revisionKey: '123abc',
+            keyPrefix: "test-prefix",
+            filePattern: "index.html",
+            distDir: "tests",
+            revisionKey: "123abc",
             redisDeployClient: function(/* context */) {
               return {
                 fetchRevisions: function(/* keyPrefix, revisionKey */) {
-                  return RSVP.resolve([{
-                    revision: 'a',
-                    active: false
-                  }]);
+                  return RSVP.resolve([
+                    {
+                      revision: "a",
+                      active: false
+                    }
+                  ]);
                 }
               };
             }
@@ -732,13 +752,16 @@ describe('redis plugin', function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert.isFulfilled(plugin.fetchRevisions(context))
+      return assert
+        .isFulfilled(plugin.fetchRevisions(context))
         .then(function(result) {
           assert.deepEqual(result, {
-              revisions: [{
-                "active": false,
-                "revision": "a"
-              }]
+            revisions: [
+              {
+                active: false,
+                revision: "a"
+              }
+            ]
           });
         });
     });
