@@ -3,12 +3,11 @@
 ## [v1.0.3](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.3) (2018-09-01)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.2...v1.0.3)
 
+**Merged pull requests:**
+
 - replaces then-redis with ioredis. closes \#74 [\#86](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/86) ([blimmer](https://github.com/blimmer))
 
 - better error message for redis url. [\#83](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/83) ([jherdman](https://github.com/jherdman))
-
-
-**Merged pull requests:**
 
 ## [v1.0.2](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/tree/v1.0.2) (2017-05-04)
 [Full Changelog](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/compare/v1.0.1...v1.0.2)
