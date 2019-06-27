@@ -55,6 +55,7 @@ module.exports = {
             url: pluginHelper.readConfig('url'),
             host: pluginHelper.readConfig('host'),
             port: pluginHelper.readConfig('port'),
+            tls: pluginHelper.readConfig('tls'),
             password: pluginHelper.readConfig('password'),
             database: pluginHelper.readConfig('database'),
             maxRecentUploads: pluginHelper.readConfig('maxRecentUploads'),
@@ -82,7 +83,7 @@ module.exports = {
           }
         }
 
-        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'activeContentSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads', 'revisionData'].forEach(this.applyDefaultConfigProperty.bind(this));
+        ['filePattern', 'distDir', 'keyPrefix', 'activationSuffix', 'activeContentSuffix', 'revisionKey', 'didDeployMessage', 'redisDeployClient', 'maxRecentUploads', 'revisionData','tls'].forEach(this.applyDefaultConfigProperty.bind(this));
 
         this.log('config ok', { verbose: true });
       },
