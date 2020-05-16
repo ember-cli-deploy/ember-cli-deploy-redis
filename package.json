@@ -21,7 +21,6 @@
     "core-object": "^3.1.5",
     "ember-cli-deploy-plugin": "^0.2.9",
     "ioredis": "^3.2.2",
-    "redis": "^2.6.3",
     "rsvp": "^4.8.5"
   },
   "devDependencies": {
