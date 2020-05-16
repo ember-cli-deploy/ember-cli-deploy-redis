@@ -1,14 +1,10 @@
 /* jshint node: true */
 'use strict';
 
-var RSVP = require('rsvp');
-var path = require('path');
-var fs = require('fs');
+let path = require('path');
+let fs = require('fs');
 
-var denodeify = require('rsvp').denodeify;
-var readFile  = denodeify(fs.readFile);
-
-var DeployPluginBase = require('ember-cli-deploy-plugin');
+let DeployPluginBase = require('ember-cli-deploy-plugin');
 
 module.exports = {
   name: 'ember-cli-deploy-redis',
@@ -87,57 +83,58 @@ module.exports = {
         this.log('config ok', { verbose: true });
       },
 
-      upload: function(/* context */) {
-        var redisDeployClient = this.readConfig('redisDeployClient');
-        var revisionKey       = this.readConfig('revisionKey');
-        var distDir           = this.readConfig('distDir');
-        var filePattern       = this.readConfig('filePattern');
-        var keyPrefix         = this.readConfig('keyPrefix');
-        var filePath          = path.join(distDir, filePattern);
+      upload: async function(/* context */) {
+        let redisDeployClient = this.readConfig('redisDeployClient');
+        let revisionKey       = this.readConfig('revisionKey');
+        let distDir           = this.readConfig('distDir');
+        let filePattern       = this.readConfig('filePattern');
+        let keyPrefix         = this.readConfig('keyPrefix');
+        let filePath          = path.join(distDir, filePattern);
 
         this.log('Uploading `' + filePath + '`', { verbose: true });
-        return this._readFileContents(filePath)
-          .then(redisDeployClient.upload.bind(redisDeployClient, keyPrefix, revisionKey, this.readConfig('revisionData')))
-          .then(this._uploadSuccessMessage.bind(this))
-          .then(function(key) {
-            return { redisKey: key };
-          })
-          .catch(this._errorMessage.bind(this));
+        try {
+          let fileContents = await this._readFileContents(filePath);
+          let key = await redisDeployClient.upload(keyPrefix, revisionKey, this.readConfig('revisionData'), fileContents);
+          this._logUploadSuccessMessage(key);
+          return { redisKey: key };
+        } catch(e) {
+          this._logErrorMessage(e);
+          throw e;
+        }
       },
 
-      willActivate: function(/* context */) {
-        var redisDeployClient = this.readConfig('redisDeployClient');
-        var keyPrefix         = this.readConfig('keyPrefix');
+      willActivate: async function(/* context */) {
+        let redisDeployClient = this.readConfig('redisDeployClient');
+        let keyPrefix         = this.readConfig('keyPrefix');
 
-        var revisionKey = redisDeployClient.activeRevision(keyPrefix);
-
-        return RSVP.resolve(revisionKey).then(function(previousRevisionKey) {
-          return {
-            revisionData: {
-              previousRevisionKey: previousRevisionKey
-            }
-          };
-        });
+        let previousRevisionKey = await redisDeployClient.activeRevision(keyPrefix);
+        return {
+          revisionData: {
+            previousRevisionKey
+          }
+        };
       },
 
-      activate: function(/* context */) {
-        var redisDeployClient   = this.readConfig('redisDeployClient');
-        var revisionKey         = this.readConfig('revisionKey');
-        var keyPrefix           = this.readConfig('keyPrefix');
-        var activationSuffix    = this.readConfig('activationSuffix');
-        var activeContentSuffix = this.readConfig('activeContentSuffix');
+      activate: async function(/* context */) {
+        let redisDeployClient   = this.readConfig('redisDeployClient');
+        let revisionKey         = this.readConfig('revisionKey');
+        let keyPrefix           = this.readConfig('keyPrefix');
+        let activationSuffix    = this.readConfig('activationSuffix');
+        let activeContentSuffix = this.readConfig('activeContentSuffix');
 
         this.log('Activating revision `' + revisionKey + '`', { verbose: true });
-        return RSVP.resolve(redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix))
-          .then(this.log.bind(this, '✔ Activated revision `' + revisionKey + '`', {}))
-          .then(function(){
-            return {
-              revisionData: {
-                activatedRevisionKey: revisionKey
-              }
-            };
-          })
-          .catch(this._errorMessage.bind(this));
+        try {
+          await redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix);
+          this.log('✔ Activated revision `' + revisionKey + '`', {});
+          return {
+            revisionData: {
+              activatedRevisionKey: revisionKey
+            }
+          };
+        } catch(e) {
+          this._logErrorMessage(e);
+          throw e;
+        }
       },
 
       didDeploy: function(/* context */){
@@ -147,49 +144,49 @@ module.exports = {
         }
       },
 
-      fetchInitialRevisions: function(/* context */) {
-        var redisDeployClient = this.readConfig('redisDeployClient');
-        var keyPrefix = this.readConfig('keyPrefix');
+      fetchInitialRevisions: async function(/* context */) {
+        let redisDeployClient = this.readConfig('redisDeployClient');
+        let keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Listing initial revisions for key: `' + keyPrefix + '`', { verbose: true });
-        return RSVP.resolve(redisDeployClient.fetchRevisions(keyPrefix))
-          .then(function(revisions) {
-            return {
-              initialRevisions: revisions
-            };
-          })
-          .catch(this._errorMessage.bind(this));
+        try {
+          let initialRevisions = await redisDeployClient.fetchRevisions(keyPrefix);
+          return {
+            initialRevisions
+          };
+        } catch(e) {
+          this._logErrorMessage(e);
+          throw e;
+        }
       },
 
-      fetchRevisions: function(/* context */) {
-        var redisDeployClient = this.readConfig('redisDeployClient');
-        var keyPrefix = this.readConfig('keyPrefix');
+      fetchRevisions: async function(/* context */) {
+        let redisDeployClient = this.readConfig('redisDeployClient');
+        let keyPrefix = this.readConfig('keyPrefix');
 
         this.log('Listing revisions for key: `' + keyPrefix + '`');
-        return RSVP.resolve(redisDeployClient.fetchRevisions(keyPrefix))
-          .then(function(revisions) {
-            return {
-              revisions: revisions
-            };
-          })
-          .catch(this._errorMessage.bind(this));
+        try {
+          let revisions = await redisDeployClient.fetchRevisions(keyPrefix);
+          return {
+            revisions
+          };
+        } catch(e) {
+          this._logErrorMessage(e);
+          throw e;
+        }
       },
 
-      _readFileContents: function(path) {
-        return readFile(path)
-          .then(function(buffer) {
-            return buffer.toString();
-          });
+      _readFileContents: async function(path) {
+        let buffer = await fs.promises.readFile(path);
+        return buffer.toString();
       },
 
-      _uploadSuccessMessage: function(key) {
+      _logUploadSuccessMessage: function(key) {
         this.log('Uploaded with key `' + key + '`', { verbose: true });
-        return RSVP.resolve(key);
       },
 
-      _errorMessage: function(error) {
+      _logErrorMessage: function(error) {
         this.log(error, { color: 'red' });
-        return RSVP.reject(error);
       }
     });
 
