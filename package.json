@@ -11,14 +11,14 @@
   },
   "repository": "https://github.com/ember-cli-deploy/ember-cli-deploy-redis",
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 10"
   },
   "author": "Aaron Chambers and the ember-cli-deploy team",
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
-    "ember-cli": "^2.18.2",
+    "ember-cli": "^3.18.0",
     "ember-cli-release": "1.0.0-beta.2",
     "eslint": "^3.18.0",
     "github": "^6.1.0",
