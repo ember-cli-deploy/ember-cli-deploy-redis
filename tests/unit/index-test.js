@@ -6,7 +6,7 @@ var IoRedis = require("ioredis");
 var sandbox = require("sinon").createSandbox();
 
 var stubProject = {
-  name: function() {
+  name() {
     return "my-project";
   }
 };
@@ -19,8 +19,8 @@ describe("redis plugin", function() {
     mockUi = {
       verbose: true,
       messages: [],
-      write: function() {},
-      writeLine: function(message) {
+      write() {},
+      writeLine(message) {
         this.messages.push(message);
       }
     };
@@ -537,9 +537,9 @@ describe("redis plugin", function() {
             filePattern: "index.html",
             distDir: "tests",
             revisionKey: "123abc",
-            redisDeployClient: function(/* context */) {
+            redisDeployClient(/* context */) {
               return {
-                upload: function(keyPrefix, revisionKey) {
+                upload(keyPrefix, revisionKey) {
                   return RSVP.resolve(keyPrefix + ":" + revisionKey);
                 }
               };
@@ -572,9 +572,9 @@ describe("redis plugin", function() {
             filePattern: "index.html",
             distDir: "tests",
             revisionKey: "123abc",
-            redisDeployClient: function(/* context */) {
+            redisDeployClient(/* context */) {
               return {
-                activate: function() {
+                activate() {
                   activateCalled = true;
                 }
               };
@@ -603,9 +603,9 @@ describe("redis plugin", function() {
             filePattern: "index.html",
             distDir: "tests",
             revisionKey: "123abc",
-            redisDeployClient: function(/* context */) {
+            redisDeployClient(/* context */) {
               return {
-                activate: function() {
+                activate() {
                   return RSVP.reject("some-error");
                 }
               };
@@ -632,10 +632,10 @@ describe("redis plugin", function() {
       var context = {
         deployTarget: "qa",
         ui: {
-          write: function(message) {
+          write(message) {
             messageOutput = messageOutput + message;
           },
-          writeLine: function(message) {
+          writeLine(message) {
             messageOutput = messageOutput + message + "\n";
           }
         },
@@ -678,9 +678,9 @@ describe("redis plugin", function() {
             filePattern: "index.html",
             distDir: "tests",
             revisionKey: "123abc",
-            redisDeployClient: function(/* context */) {
+            redisDeployClient(/* context */) {
               return {
-                fetchRevisions: function(/* keyPrefix, revisionKey */) {
+                fetchRevisions(/* keyPrefix, revisionKey */) {
                   return RSVP.resolve([
                     {
                       revision: "a",
@@ -726,9 +726,9 @@ describe("redis plugin", function() {
             filePattern: "index.html",
             distDir: "tests",
             revisionKey: "123abc",
-            redisDeployClient: function(/* context */) {
+            redisDeployClient(/* context */) {
               return {
-                fetchRevisions: function(/* keyPrefix, revisionKey */) {
+                fetchRevisions(/* keyPrefix, revisionKey */) {
                   return RSVP.resolve([
                     {
                       revision: "a",

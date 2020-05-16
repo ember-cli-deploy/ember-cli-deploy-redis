@@ -9,14 +9,14 @@ let DeployPluginBase = require('ember-cli-deploy-plugin');
 module.exports = {
   name: 'ember-cli-deploy-redis',
 
-  createDeployPlugin: function(options) {
+  createDeployPlugin(options) {
     var Redis = require('./lib/redis');
 
     var DeployPlugin = DeployPluginBase.extend({
       name: options.name,
       defaultConfig: {
         host: 'localhost',
-        port: function(context) {
+        port(context) {
           if (context.tunnel && context.tunnel.srcPort) {
             return context.tunnel.srcPort;
           } else {
@@ -25,15 +25,15 @@ module.exports = {
         },
         filePattern: 'index.html',
         maxRecentUploads: 10,
-        distDir: function(context) {
+        distDir(context) {
           return context.distDir;
         },
-        keyPrefix: function(context){
+        keyPrefix(context){
           return context.project.name() + ':index';
         },
         activationSuffix: 'current',
         activeContentSuffix: 'current-content',
-        didDeployMessage: function(context){
+        didDeployMessage(context){
           var revisionKey = context.revisionData && context.revisionData.revisionKey;
           var activatedRevisionKey = context.revisionData && context.revisionData.activatedRevisionKey;
           if (revisionKey && !activatedRevisionKey) {
@@ -42,10 +42,10 @@ module.exports = {
                  + "ember deploy:activate " + context.deployTarget + " --revision=" + revisionKey + "\n";
           }
         },
-        revisionKey: function(context) {
+        revisionKey(context) {
           return context.commandOptions.revision || (context.revisionData && context.revisionData.revisionKey);
         },
-        redisDeployClient: function(context, pluginHelper) {
+        redisDeployClient(context, pluginHelper) {
           var redisLib = context._redisLib;
           var options = {
             url: pluginHelper.readConfig('url'),
@@ -61,11 +61,11 @@ module.exports = {
           return new Redis(options, redisLib);
         },
 
-        revisionData: function(context) {
+        revisionData(context) {
           return context.revisionData;
         }
       },
-      configure: function(/* context */) {
+      configure(/* context */) {
         this.log('validating config', { verbose: true });
 
         if (!this.pluginConfig.url) {
@@ -83,7 +83,7 @@ module.exports = {
         this.log('config ok', { verbose: true });
       },
 
-      upload: async function(/* context */) {
+      async upload(/* context */) {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let revisionKey       = this.readConfig('revisionKey');
         let distDir           = this.readConfig('distDir');
@@ -103,7 +103,7 @@ module.exports = {
         }
       },
 
-      willActivate: async function(/* context */) {
+      async willActivate(/* context */) {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix         = this.readConfig('keyPrefix');
 
@@ -115,7 +115,7 @@ module.exports = {
         };
       },
 
-      activate: async function(/* context */) {
+      async activate(/* context */) {
         let redisDeployClient   = this.readConfig('redisDeployClient');
         let revisionKey         = this.readConfig('revisionKey');
         let keyPrefix           = this.readConfig('keyPrefix');
@@ -137,14 +137,14 @@ module.exports = {
         }
       },
 
-      didDeploy: function(/* context */){
+      didDeploy(/* context */){
         var didDeployMessage = this.readConfig('didDeployMessage');
         if (didDeployMessage) {
           this.log(didDeployMessage);
         }
       },
 
-      fetchInitialRevisions: async function(/* context */) {
+      async fetchInitialRevisions(/* context */) {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
 
@@ -160,7 +160,7 @@ module.exports = {
         }
       },
 
-      fetchRevisions: async function(/* context */) {
+      async fetchRevisions(/* context */) {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
 
@@ -176,16 +176,16 @@ module.exports = {
         }
       },
 
-      _readFileContents: async function(path) {
+      async _readFileContents(path) {
         let buffer = await fs.promises.readFile(path);
         return buffer.toString();
       },
 
-      _logUploadSuccessMessage: function(key) {
+      _logUploadSuccessMessage(key) {
         this.log('Uploaded with key `' + key + '`', { verbose: true });
       },
 
-      _logErrorMessage: function(error) {
+      _logErrorMessage(error) {
         this.log(error, { color: 'red' });
       }
     });
