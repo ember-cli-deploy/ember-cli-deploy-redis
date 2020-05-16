@@ -29,7 +29,7 @@ module.exports = {
           return context.distDir;
         },
         keyPrefix(context){
-          return context.project.name() + ':index';
+          return `${context.project.name()}:index`;
         },
         activationSuffix: 'current',
         activeContentSuffix: 'current-content',
@@ -37,9 +37,9 @@ module.exports = {
           var revisionKey = context.revisionData && context.revisionData.revisionKey;
           var activatedRevisionKey = context.revisionData && context.revisionData.activatedRevisionKey;
           if (revisionKey && !activatedRevisionKey) {
-            return "Deployed but did not activate revision " + revisionKey + ". "
-                 + "To activate, run: "
-                 + "ember deploy:activate " + context.deployTarget + " --revision=" + revisionKey + "\n";
+            return `Deployed but did not activate revision ${revisionKey}. `
+                 + `To activate, run: `
+                 + `ember deploy:activate ${context.deployTarget} --revision=${revisionKey}` + "\n";
           }
         },
         revisionKey(context) {
@@ -74,7 +74,7 @@ module.exports = {
           var redisUrlRegexp = new RegExp('^redis://');
 
           if (!this.pluginConfig.url.match(redisUrlRegexp)) {
-            throw new Error('Your Redis URL appears to be missing the "redis://" protocol. Update your URL to: redis://' + this.pluginConfig.url);
+            throw new Error(`Your Redis URL appears to be missing the "redis://" protocol. Update your URL to: redis://${this.pluginConfig.url}`);
           }
         }
 
@@ -91,7 +91,7 @@ module.exports = {
         let keyPrefix         = this.readConfig('keyPrefix');
         let filePath          = path.join(distDir, filePattern);
 
-        this.log('Uploading `' + filePath + '`', { verbose: true });
+        this.log(`Uploading \`${filePath}\``, { verbose: true });
         try {
           let fileContents = await this._readFileContents(filePath);
           let key = await redisDeployClient.upload(keyPrefix, revisionKey, this.readConfig('revisionData'), fileContents);
@@ -122,10 +122,10 @@ module.exports = {
         let activationSuffix    = this.readConfig('activationSuffix');
         let activeContentSuffix = this.readConfig('activeContentSuffix');
 
-        this.log('Activating revision `' + revisionKey + '`', { verbose: true });
+        this.log(`Activating revision \`${revisionKey}\``, { verbose: true });
         try {
           await redisDeployClient.activate(keyPrefix, revisionKey, activationSuffix, activeContentSuffix);
-          this.log('✔ Activated revision `' + revisionKey + '`', {});
+          this.log(`✔ Activated revision \`${revisionKey}\``, {});
           return {
             revisionData: {
               activatedRevisionKey: revisionKey
@@ -148,7 +148,7 @@ module.exports = {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
 
-        this.log('Listing initial revisions for key: `' + keyPrefix + '`', { verbose: true });
+        this.log(`Listing initial revisions for key: \`${keyPrefix}\``, { verbose: true });
         try {
           let initialRevisions = await redisDeployClient.fetchRevisions(keyPrefix);
           return {
@@ -164,7 +164,7 @@ module.exports = {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
 
-        this.log('Listing revisions for key: `' + keyPrefix + '`');
+        this.log(`Listing revisions for key: \`${keyPrefix}\``);
         try {
           let revisions = await redisDeployClient.fetchRevisions(keyPrefix);
           return {
@@ -182,7 +182,7 @@ module.exports = {
       },
 
       _logUploadSuccessMessage(key) {
-        this.log('Uploaded with key `' + key + '`', { verbose: true });
+        this.log(`Uploaded with key \`${key}\``, { verbose: true });
       },
 
       _logErrorMessage(error) {
