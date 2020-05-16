@@ -148,7 +148,7 @@ module.exports = {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
 
-        this.log(`Listing initial revisions for key: \`${keyPrefix}\``, { verbose: true });
+        this.log(`Fetching initial revisions for key: \`${keyPrefix}\``, { verbose: true });
         try {
           let initialRevisions = await redisDeployClient.fetchRevisions(keyPrefix);
           return {
@@ -163,8 +163,7 @@ module.exports = {
       async fetchRevisions(/* context */) {
         let redisDeployClient = this.readConfig('redisDeployClient');
         let keyPrefix = this.readConfig('keyPrefix');
-
-        this.log(`Listing revisions for key: \`${keyPrefix}\``);
+        this.log(`Fetching revisions for key: \`${keyPrefix}\``, { verbose: true });
         try {
           let revisions = await redisDeployClient.fetchRevisions(keyPrefix);
           return {

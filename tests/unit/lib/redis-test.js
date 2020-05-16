@@ -51,13 +51,13 @@ describe('redis', function () {
         maxRecentUploads: 2
       }, IoredisMock);
 
-        await redis.upload('key', 1, '1value');
-        await redis.upload('key', 2, '2value');
-        await redis.upload('key', 3, '3value');
-        let values = await redis._client.mget('key:1', 'key:revision-data:1')
-        assert.equal(values.filter(Boolean).length, 0, 'Expected key:1 and key:revision-data:1 to be deleted.');
-        let value = await redis._client.zrange('key:revisions', 0, -1);
-        assert.deepEqual(value, ['2', '3']);
+      await redis.upload('key', 1, '1value');
+      await redis.upload('key', 2, '2value');
+      await redis.upload('key', 3, '3value');
+      let values = await redis._client.mget('key:1', 'key:revision-data:1')
+      assert.equal(values.filter(Boolean).length, 0, 'Expected key:1 and key:revision-data:1 to be deleted.');
+      let value = await redis._client.zrange('key:revisions', 0, -1);
+      assert.deepEqual(value, ['2', '3']);
     });
 
     it('trims the list of recent uploads but leaves the active one', async function () {
