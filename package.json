@@ -21,7 +21,6 @@
     "core-object": "^3.1.5",
     "ember-cli-deploy-plugin": "^0.2.9",
     "ioredis": "^3.2.2",
-    "redis": "^2.6.3",
     "rsvp": "^4.8.5"
   },
   "devDependencies": {
@@ -30,7 +29,6 @@
     "chai-as-promised": "^7.1.1",
     "ember-cli": "^3.18.0",
     "eslint": "^7.0.0",
-    "github": "^6.1.0",
     "ioredis-mock": "^3.14.0",
     "glob": "^7.1.6",
     "mocha": "^7.1.2",
