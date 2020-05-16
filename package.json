@@ -31,8 +31,10 @@
     "eslint": "^7.0.0",
     "glob": "^7.1.6",
     "ioredis-mock": "^4.19.0",
+    "lerna-changelog": "^1.0.1",
     "mocha": "^7.1.2",
     "release-it": "*",
+    "release-it-lerna-changelog": "^2.3.0",
     "sinon": "^9.0.2"
   },
   "keywords": [
