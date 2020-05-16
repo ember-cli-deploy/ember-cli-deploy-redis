@@ -523,7 +523,7 @@ describe("redis plugin", function() {
     var plugin;
     var context;
 
-    it("uploads the index", function() {
+    it("uploads the index", async function() {
       plugin = subject.createDeployPlugin({
         name: "redis"
       });
@@ -550,14 +550,13 @@ describe("redis plugin", function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert.isFulfilled(plugin.upload(context)).then(function(result) {
-        assert.deepEqual(result, { redisKey: "test-prefix:123abc" });
-      });
+      let result = await assert.isFulfilled(plugin.upload(context));
+      assert.deepEqual(result, { redisKey: "test-prefix:123abc" });
     });
   });
 
   describe("activate hook", function() {
-    it("activates revision", function() {
+    it("activates revision", async function() {
       var activateCalled = false;
 
       var plugin = subject.createDeployPlugin({
@@ -585,15 +584,12 @@ describe("redis plugin", function() {
       };
       plugin.beforeHook(context);
 
-      return assert
-        .isFulfilled(plugin.activate(context))
-        .then(function(result) {
-          assert.ok(activateCalled);
-          assert.equal(result.revisionData.activatedRevisionKey, "123abc");
-        });
+      let result = await assert.isFulfilled(plugin.activate(context));
+      assert.ok(activateCalled);
+      assert.equal(result.revisionData.activatedRevisionKey, "123abc");
     });
 
-    it("rejects if an error is thrown when activating", function() {
+    it("rejects if an error is thrown when activating", async function() {
       var plugin = subject.createDeployPlugin({
         name: "redis"
       });
@@ -619,9 +615,8 @@ describe("redis plugin", function() {
       };
 
       plugin.beforeHook(context);
-      return assert.isRejected(plugin.activate(context)).then(function(error) {
-        assert.equal(error, "some-error");
-      });
+      let error = await assert.isRejected(plugin.activate(context));
+      assert.equal(error, "some-error");
     });
   });
   describe("didDeploy hook", function() {
@@ -666,7 +661,7 @@ describe("redis plugin", function() {
   });
 
   describe("fetchInitialRevisions hook", function() {
-    it("fills the initialRevisions variable on context", function() {
+    it("fills the initialRevisions variable on context", async function() {
       var plugin;
       var context;
 
@@ -701,23 +696,20 @@ describe("redis plugin", function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert
-        .isFulfilled(plugin.fetchInitialRevisions(context))
-        .then(function(result) {
-          assert.deepEqual(result, {
-            initialRevisions: [
-              {
-                active: false,
-                revision: "a"
-              }
-            ]
-          });
-        });
+      let result = await assert.isFulfilled(plugin.fetchInitialRevisions(context));
+      assert.deepEqual(result, {
+        initialRevisions: [
+          {
+            active: false,
+            revision: "a"
+          }
+        ]
+      });
     });
   });
 
   describe("fetchRevisions hook", function() {
-    it("fills the revisions variable on context", function() {
+    it("fills the revisions variable on context", async function() {
       var plugin;
       var context;
 
@@ -752,18 +744,15 @@ describe("redis plugin", function() {
       plugin.beforeHook(context);
       plugin.configure(context);
 
-      return assert
-        .isFulfilled(plugin.fetchRevisions(context))
-        .then(function(result) {
-          assert.deepEqual(result, {
-            revisions: [
-              {
-                active: false,
-                revision: "a"
-              }
-            ]
-          });
-        });
+      let result = await assert.isFulfilled(plugin.fetchRevisions(context));
+      assert.deepEqual(result, {
+        revisions: [
+          {
+            active: false,
+            revision: "a"
+          }
+        ]
+      });
     });
   });
 });
