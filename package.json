@@ -20,7 +20,7 @@
     "chalk": "^4.0.0",
     "core-object": "^3.1.5",
     "ember-cli-deploy-plugin": "^0.2.9",
-    "ioredis": "^3.2.2",
+    "ioredis": "^4.17.0",
     "rsvp": "^4.8.5"
   },
   "devDependencies": {
@@ -29,8 +29,8 @@
     "chai-as-promised": "^7.1.1",
     "ember-cli": "^3.18.0",
     "eslint": "^7.0.0",
-    "ioredis-mock": "^3.14.0",
     "glob": "^7.1.6",
+    "ioredis-mock": "^4.19.0",
     "mocha": "^7.1.2",
     "release-it": "*",
     "sinon": "^9.0.2"
