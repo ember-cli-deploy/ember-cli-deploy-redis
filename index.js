@@ -71,7 +71,7 @@ module.exports = {
         if (!this.pluginConfig.url) {
           ['host', 'port'].forEach(this.applyDefaultConfigProperty.bind(this));
         } else {
-          var redisUrlRegexp = new RegExp('^redis://');
+          var redisUrlRegexp = new RegExp('^rediss?://');
 
           if (!this.pluginConfig.url.match(redisUrlRegexp)) {
             throw new Error(`Your Redis URL appears to be missing the "redis://" protocol. Update your URL to: redis://${this.pluginConfig.url}`);
