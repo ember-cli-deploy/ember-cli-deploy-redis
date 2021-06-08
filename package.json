@@ -12,7 +12,7 @@
   },
   "repository": "https://github.com/ember-cli-deploy/ember-cli-deploy-redis",
   "engines": {
-    "node": ">= 10"
+    "node": ">= 12"
   },
   "author": "Aaron Chambers and the ember-cli-deploy team",
   "license": "MIT",
