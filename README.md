@@ -158,8 +158,6 @@ The Redis client to be used to upload files to the Redis store. By default this 
 
 A message that will be displayed after the file has been successfully uploaded to Redis. By default this message will only display if the revision for `revisionData.revisionKey` of the deployment context has been activated.
 
-*Default:*
-
 ```javascript
 if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionKey) {
   return "Deployed but did not activate revision " + context.revisionData.revisionKey + ". "
@@ -167,6 +165,12 @@ if (context.revisionData.revisionKey && !context.revisionData.activatedRevisionK
        + "ember deploy:activate " + context.revisionData.revisionKey + " --environment=" + context.deployEnvironment + "\n";
 }
 ```
+
+### tls
+
+An optional tls configuration object for connecting to redis instances with encryption-in-transit enabled. Please see [https://github.com/luin/ioredis#tls-options](https://github.com/luin/ioredis#tls-options) for available options
+
+*Default:* `null`
 
 ### maxRecentUploads
 
