@@ -1,3 +1,18 @@
+## v3.0.0 (2021-06-08)
+
+#### :boom: Breaking Change
+* [#119](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/119) Update node version to 12 or higher ([@lukemelia](https://github.com/lukemelia))
+
+#### :bug: Bug Fix
+* [#113](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/113) Allow rediss:// style urls for TLS support ([@wongpeiyi](https://github.com/wongpeiyi))
+
+#### :house: Internal
+* [#116](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/116) Update dependencies ([@lukemelia](https://github.com/lukemelia))
+
+#### Committers: 2
+- Luke Melia ([@lukemelia](https://github.com/lukemelia))
+- Wong Pei Yi ([@wongpeiyi](https://github.com/wongpeiyi))
+
 ### Changelog
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
