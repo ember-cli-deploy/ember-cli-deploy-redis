@@ -94,13 +94,16 @@ describe("redis plugin", function() {
       plugin.configure(context);
       plugin.readConfig("redisDeployClient");
 
-      assert.isTrue(
-        redisLibStub.calledWith({
-          host: "somehost",
-          port: 1234,
-          db: 4,
-          tls: { rejectUnauthorized: false }
-        })
+      assert.deepEqual(
+        redisLibStub.lastCall.args,
+        [
+          {
+            host: "somehost",
+            port: 1234,
+            db: 4,
+            tls: { rejectUnauthorized: false }
+          }
+        ]
       );
     });
 
@@ -126,8 +129,9 @@ describe("redis plugin", function() {
         plugin.configure(context);
         plugin.readConfig("redisDeployClient");
 
-        assert.isTrue(
-          redisLibStub.calledWith({ url: "redis://:password@host.amazonaws.com:6379/4" })
+        assert.deepEqual(
+          redisLibStub.lastCall.args, 
+          ["redis://:password@host.amazonaws.com:6379/4", {}],
         );
       });
 
@@ -153,7 +157,7 @@ describe("redis plugin", function() {
         plugin.readConfig("redisDeployClient");
 
         assert.isTrue(
-          redisLibStub.calledWith({ url: "redis://:password@host.amazonaws.com:6379/4" })
+          redisLibStub.calledWith("redis://:password@host.amazonaws.com:6379/4")
         );
       });
 
