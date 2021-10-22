@@ -46,19 +46,20 @@ module.exports = {
           return context.commandOptions.revision || (context.revisionData && context.revisionData.revisionKey);
         },
         redisDeployClient(context, pluginHelper) {
-          var redisLib = context._redisLib;
-          var options = {
+          let redisLib = context._redisLib;
+          let libOptions = {
             url: pluginHelper.readConfig('url'),
             host: pluginHelper.readConfig('host'),
             port: pluginHelper.readConfig('port'),
             password: pluginHelper.readConfig('password'),
             database: pluginHelper.readConfig('database'),
+            redisOptions: pluginHelper.readConfig('redisOptions'),
             maxRecentUploads: pluginHelper.readConfig('maxRecentUploads'),
             allowOverwrite: pluginHelper.readConfig('allowOverwrite'),
             activationSuffix: pluginHelper.readConfig('activationSuffix')
           };
 
-          return new Redis(options, redisLib);
+          return new Redis(libOptions, redisLib);
         },
 
         revisionData(context) {
