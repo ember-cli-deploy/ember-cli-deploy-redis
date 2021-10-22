@@ -43,6 +43,9 @@
   "ember-addon": {
     "configPath": "tests/dummy/config"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "release-it": {
     "git": {
       "tagName": "v${version}",
@@ -50,7 +53,7 @@
       "pushArgs": "--follow-tags --no-verify"
     },
     "npm": {
-      "publish": false
+      "publish": true
     },
     "github": {
       "release": true
