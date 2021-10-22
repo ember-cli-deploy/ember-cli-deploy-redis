@@ -60,5 +60,9 @@
         "infile": "CHANGELOG.md"
       }
     }
+  },
+  "volta": {
+    "node": "14.18.1",
+    "yarn": "1.22.17"
   }
 }

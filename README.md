@@ -94,6 +94,11 @@ A Redis connection url to the Redis store
 
 *Example:* 'redis://some-user:some-password@some-host.com:1234'
 
+### redisOptions
+
+Options to be passed to the redis client.
+
+*Example:* { tls: { rejectUnauthorized: false } }
 ### filePattern
 
 A file matching this pattern will be uploaded to Redis.
