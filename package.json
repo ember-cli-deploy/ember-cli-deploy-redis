@@ -12,7 +12,7 @@
   },
   "repository": "https://github.com/ember-cli-deploy/ember-cli-deploy-redis",
   "engines": {
-    "node": "12.* || 14.* || >= 16"
+    "node": "14.* || 16.* || 18.* || >= 20"
   },
   "author": "Aaron Chambers and the ember-cli-deploy team",
   "license": "MIT",
@@ -20,21 +20,21 @@
     "chalk": "^4.1.1",
     "core-object": "^3.1.5",
     "ember-cli-deploy-plugin": "^0.2.9",
-    "ioredis": "^4.27.5",
+    "ioredis": "^4.28.5",
     "rsvp": "^4.8.5"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
+    "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
-    "ember-cli": "^3.26.1",
-    "eslint": "^7.28.0",
-    "glob": "^7.1.7",
-    "ioredis-mock": "^5.6.0",
+    "ember-cli": "^3.28.6",
+    "eslint": "^8.42.0",
+    "glob": "^10.2.6",
+    "ioredis-mock": "^5.9.1",
     "lerna-changelog": "^1.0.1",
     "mocha": "^8.4.0",
     "release-it": "14.8.0",
     "release-it-lerna-changelog": "^3.1.0",
-    "sinon": "^11.1.1"
+    "sinon": "^11.1.2"
   },
   "keywords": [
     "ember-addon",
