@@ -6,6 +6,15 @@ Version 9 of Highlight.js has reached EOL and is no longer supported.
 Please upgrade or ask whatever dependency you are using to upgrade.
 https://github.com/highlightjs/highlight.js/issues/2877
 
+## v4.0.0 (2023-06-04)
+
+#### :boom: Breaking Change
+* [#140](https://github.com/ember-cli-deploy/ember-cli-deploy-redis/pull/140) Update dependencies and node versions ([@lukemelia](https://github.com/lukemelia))
+
+#### Committers: 2
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+- Luke Melia ([@lukemelia](https://github.com/lukemelia))
+
 ## v3.0.0 (2021-06-08)
 
 #### :boom: Breaking Change
