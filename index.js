@@ -125,7 +125,7 @@ module.exports = {
               const relativePath = path.relative(distDir, filePath);
               const directoryName = path.dirname(relativePath);
 
-              if (directoryName !== '' || directoryName !== '.') {
+              if (directoryName !== '' && directoryName !== '.') {
                 prefix = `${keyPrefix.replace(':index', `:${directoryName}:index`)}`;
               }
 
