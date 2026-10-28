@@ -335,7 +335,7 @@ The following properties are used if present on the deployment `context` object:
 
 ## Running Tests
 
-* yarn test
+* pnpm test
 
 ## Why `ember build` and `ember test` don't work
 
